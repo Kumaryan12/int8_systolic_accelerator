@@ -2,7 +2,7 @@
 // 32-bit AXI4-Lite peripheral. One outstanding read and write, independently.
 // See docs/axi_interface.md for the CSR map and software transaction contract.
 module axi_gemm #(
-    parameter integer M=3, K=5, N=7, TILE=4
+    parameter integer M=3, K=5, N=7, TILE=4, SRAM_IMPL=0
 )(
     input wire aclk, aresetn,
     input wire [7:0] s_axi_awaddr,
@@ -60,7 +60,7 @@ module axi_gemm #(
     // AxPROT is accepted without privilege/security filtering. Integration must
     // enforce access control upstream if required by the system.
     wire unused_prot=^{s_axi_awprot,s_axi_arprot};
-    memory_gemm #(.M(M),.K(K),.N(N),.TILE(TILE)) core (
+    memory_gemm #(.M(M),.K(K),.N(N),.TILE(TILE),.SRAM_IMPL(SRAM_IMPL)) core (
         .clk(aclk),.rst_n(reset_n),.load_valid(load_valid),.load_ready(load_ready),
         .load_bank(bank),.load_data(wdata[7:0]),.load_tag(tag),
         .load_last(input_count[bank]==INPUT_WORDS-1),.load_error(load_error),

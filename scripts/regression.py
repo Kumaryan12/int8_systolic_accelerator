@@ -363,6 +363,9 @@ class Regression:
             self.sva()
         if suite in ("gemm", "verify"):
             self.gemm()
+        if suite in ("sram", "verify"):
+            from sram import run_sram
+            run_sram(self)
         if suite in ("axi", "verify"):
             self.axi()
         if suite in ("memory", "verify"):
@@ -404,7 +407,7 @@ class Regression:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "memory", "memory-sva", "memory-bench", "memory-synth", "inference", "synth", "ppa", "gate", "architecture", "physical", "postroute", "model", "axi", "pvt"], default="verify")
+    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "memory", "memory-sva", "memory-bench", "memory-synth", "inference", "synth", "ppa", "gate", "architecture", "physical", "postroute", "model", "axi", "pvt", "sram"], default="verify")
     parser.add_argument("--physical-run")
     parser.add_argument("--physical-design", choices=["memory_gemm","axi_gemm"], default="memory_gemm")
     parser.add_argument("--require-timing-closure", action="store_true")

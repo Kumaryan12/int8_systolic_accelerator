@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 module tb_axi_gemm;
-    parameter integer M=3,K=5,N=7,TILE=4;
+    parameter integer M=3,K=5,N=7,TILE=4,SRAM_IMPL=0;
     localparam integer WORDS=M*K+K*N, OUTPUTS=M*N, JOBS=4;
     reg aclk=0, aresetn=0;
     always #5 aclk=~aclk;
@@ -15,7 +15,7 @@ module tb_axi_gemm;
 `ifdef PHYSICAL_AXI
     axi_gemm_gate dut(.*);
 `else
-    axi_gemm #(.M(M),.K(K),.N(N),.TILE(TILE)) dut(.*);
+    axi_gemm #(.M(M),.K(K),.N(N),.TILE(TILE),.SRAM_IMPL(SRAM_IMPL)) dut(.*);
 `endif
     integer seed=20261110, rng, discarded, writes=0,reads=0,resets=0;
     integer expected[0:JOBS-1][0:OUTPUTS-1];

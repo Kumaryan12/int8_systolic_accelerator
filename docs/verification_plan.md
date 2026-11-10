@@ -68,3 +68,8 @@ AXI suite is included in `make verify`.
 `timing_closed` or add `PVT_ARGS="--pvt-periods 20 --require-timing-closure"`
 for a strict pass/fail gate. Libraries are pinned/checksummed and downloaded
 into an ignored cache. RC and raw-reset exceptions remain unchanged.
+
+`make sram` checks the banked OpenRAM backend through RAM unit/negative tests,
+eight stream/AXI shapes at three seeds, temporal stream properties, synthesis
+macro-count/fallback gates and matched backend cycle benchmarks. These checks
+are included in `make verify`. SRAM views are pinned and vendored for offline CI.

@@ -41,6 +41,7 @@ make model
 make physical
 make physical PHYSICAL_DESIGN=axi_gemm
 make axi
+make sram
 make pvt PHYSICAL_RUN="build/run_<successful-physical-run>" PVT_ARGS="--pvt-periods 20 --require-timing-closure"
 make postroute PHYSICAL_RUN="build/run_<successful-physical-run>"
 make verify SEEDS="2026 20261110 42" RANDOM_CASES=200 JOBS=2
@@ -106,3 +107,9 @@ the workspace, disables runtime network access, and retains flow outputs.
 `make postroute` additionally uses host Yosys/Icarus for functional cell models
 and a routed-netlist switching trace, then runs timing/power/rendering in the
 same container image. See `physical/README.md` for implementation constraints.
+
+The default regression also needs Yosys for its hard-SRAM binding check. Small
+OpenRAM Verilog/TT Liberty/LEF views and their license are vendored under
+`third_party/sky130_sram`; the runner verifies hashes and generates an isolated
+simulation copy with compatible declaration ordering. No SRAM GDS or full PDK
+is downloaded by `make verify`.

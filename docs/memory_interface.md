@@ -88,3 +88,7 @@ In the default local mapping, the generic fallback contains 20,025 cells versus
 This is a structural cost comparison, not an SRAM-macro area measurement or
 a speedup claim. Serialized memory access adds latency; transfer-inclusive
 latency and overlap measurements are reported separately.
+
+The optional `SRAM_IMPL=1` backend uses a held two-edge response and supports
+one outgoing word every two clocks. Default inferred RAM timing remains
+unchanged. See [SRAM timing, capacity and collision contract](sram_backend.md).

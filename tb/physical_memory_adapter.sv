@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 module memory_gemm #(
-    parameter int M=3,K=5,N=7,TILE=4,DATA_W=8,TAG_W=8,
+    parameter int M=3,K=5,N=7,TILE=4,DATA_W=8,TAG_W=8,SRAM_IMPL=0,
     parameter int OUT_W=19,INDEX_W=5
 ) (
     input wire clk,rst_n,load_valid,load_bank,load_last,result_ready,

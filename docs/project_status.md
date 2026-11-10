@@ -23,6 +23,7 @@ matrices, and the small quantized layer example.
 | 11 | AXI4-Lite CSRs, independent channels, IRQs, byte strobes and qualified reset | [Results](results/checkpoint_11.md) |
 | 12 | Extracted TT/SS/FF timing sweep and strict timing gates | [Results](results/checkpoint_12.md) |
 | 13 | Routed AXI, actual gate host tests and qualified-reset timing at three cell PVTs | [Results](results/checkpoint_13.md) |
+| 14 | Banked OpenRAM backend, latency-aware controller, macro tests and synthesis binding | [Results](results/checkpoint_14.md) |
 
 The project is stored in the private GitHub repository
 [Kumaryan12/int8_systolic_accelerator](https://github.com/Kumaryan12/int8_systolic_accelerator).
@@ -33,6 +34,7 @@ by Git; curated checkpoint summaries are committed.
 ## Current functional evidence
 
 - AXI peripheral: 84 GEMMs and 2,904 result checks across seven shapes/three seeds, plus five temporal assertions on the default shape.
+- Hard SRAM: 288 Icarus GEMMs and 10,152 result checks across eight shapes/three seeds, plus stream SVA and boundary/negative tests. Exactly three macros in default synthesis; physical macro integration remains open.
 - 34 Python unit tests, including model training and physical/power report failure gates.
 - Baseline: 105 matrix pairs per seed, across three seeds.
 - Advanced RTL: 211/214/217/229 completions per seed for N=2/3/4/8,
@@ -67,8 +69,8 @@ by Git; curated checkpoint summaries are committed.
    reset pulse/MTBF characterization, foundry DRC/LVS, power-integrity/thermal checks
    and package/IO integration. AXI internal reset recovery/removal is timed;
    production signoff and silicon measurement are not.
-2. **Memory/bus integration:** map the retained 1R1W memories to an actual SRAM
-   macro or FPGA BRAM, and integrate the verified AXI4-Lite peripheral or a DMA adapter into a concrete system.
+2. **Memory/bus integration:** place/power/route the bound SKY130 SRAM macros
+   (or bind FPGA BRAM for a future board), and integrate the verified AXI4-Lite peripheral or a DMA adapter into a concrete system.
    The portable stream, ownership, buffering and cycle benchmarks are complete.
 3. **Verification closure:** review remaining uncovered expressions/branches,
    set target-specific coverage goals and consider a full RTL-to-layout formal

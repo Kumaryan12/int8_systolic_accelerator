@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/VLSIDA/sky130_sram_macros",
+  "revision": "965df150c754fe2b3f93a0bd1f9883eb114279b2",
+  "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+  "vendored_sha256": {
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "sky130_sram_1kbyte_1rw1r_32x256_8.lef": "f5389fa908c5876ef034c487b4363e755b3e13bf88ba924815c6fcea17965b92",
+    "sky130_sram_1kbyte_1rw1r_32x256_8.v": "88eaee9f0c480065545479143bfef1e3186a5d97e4a7f79b8c57ad57637cdfeb",
+    "sky130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C.lib": "f36f91f35700d936c1c82aeaffed0084b938aceed60551588ae9a02cbd706f56"
+  }
+}

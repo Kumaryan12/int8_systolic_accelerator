@@ -1,0 +1,106 @@
+{
+  "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+  "instances": {
+    "core.a_memory.sky130.storage.banks[0].macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+    "core.b_memory.sky130.storage.banks[0].macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+    "core.c_memory.sky130.storage.banks[0].macro": "sky130_sram_1kbyte_1rw1r_32x256_8"
+  },
+  "generic_cells_including_macros": 17399,
+  "benchmarks": [
+    {
+      "shape": [
+        3,
+        5,
+        7
+      ],
+      "backends": {
+        "0": {
+          "cycles": 1265,
+          "loads": 400,
+          "outputs": 168,
+          "jobs": 8,
+          "load_overlap": 349,
+          "output_overlap": 147,
+          "input_stalls": 617,
+          "output_stalls": 0,
+          "compute_interval_sum": 1043
+        },
+        "1": {
+          "cycles": 1318,
+          "loads": 400,
+          "outputs": 168,
+          "jobs": 8,
+          "load_overlap": 349,
+          "output_overlap": 147,
+          "input_stalls": 662,
+          "output_stalls": 0,
+          "compute_interval_sum": 1071
+        }
+      }
+    },
+    {
+      "shape": [
+        8,
+        8,
+        8
+      ],
+      "backends": {
+        "0": {
+          "cycles": 2570,
+          "loads": 1024,
+          "outputs": 512,
+          "jobs": 8,
+          "load_overlap": 895,
+          "output_overlap": 448,
+          "input_stalls": 1080,
+          "output_stalls": 0,
+          "compute_interval_sum": 2079
+        },
+        "1": {
+          "cycles": 2698,
+          "loads": 1024,
+          "outputs": 512,
+          "jobs": 8,
+          "load_overlap": 895,
+          "output_overlap": 448,
+          "input_stalls": 1192,
+          "output_stalls": 0,
+          "compute_interval_sum": 2135
+        }
+      }
+    },
+    {
+      "shape": [
+        9,
+        2,
+        11
+      ],
+      "backends": {
+        "0": {
+          "cycles": 3389,
+          "loads": 320,
+          "outputs": 792,
+          "jobs": 8,
+          "load_overlap": 279,
+          "output_overlap": 693,
+          "input_stalls": 2297,
+          "output_stalls": 0,
+          "compute_interval_sum": 2842
+        },
+        "1": {
+          "cycles": 3560,
+          "loads": 320,
+          "outputs": 792,
+          "jobs": 8,
+          "load_overlap": 279,
+          "output_overlap": 693,
+          "input_stalls": 2450,
+          "output_stalls": 0,
+          "compute_interval_sum": 2905
+        }
+      }
+    }
+  ],
+  "read_response": "following rising edge after request; held until next response",
+  "scope": "upstream functional model and hard-macro synthesis binding; no macro layout signoff"
+}

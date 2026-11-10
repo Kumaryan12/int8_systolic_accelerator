@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 module tb_memory_gemm #(
-    parameter int M=3,K=5,N=7,TILE=4,JOBS=8,OVERLAP=1,STALLS=1,CLOCK_HALF=5
+    parameter int M=3,K=5,N=7,TILE=4,SRAM_IMPL=0,JOBS=8,OVERLAP=1,STALLS=1,CLOCK_HALF=5
 );
     localparam int AW=M*K,BW=K*N,CW=M*N,WORDS=AW+BW;
     localparam int OW=16+$clog2(K),IW=(CW>1 ? $clog2(CW) : 1);
@@ -22,7 +22,7 @@ module tb_memory_gemm #(
     integer cycles=0,loads=0,outputs=0,finished=0,computations=0;
     integer input_stalls=0,output_stalls=0,load_overlap=0,output_overlap=0;
     integer first_compute=-1,last_compute=-1,compute_intervals=0;
-    memory_gemm #(.M(M),.K(K),.N(N),.TILE(TILE)) dut(.*);
+    memory_gemm #(.M(M),.K(K),.N(N),.TILE(TILE),.SRAM_IMPL(SRAM_IMPL)) dut(.*);
 `ifdef VERILATOR
     memory_stream_sva #(.OUT_W(OW),.INDEX_W(IW),.C_WORDS(CW)) stream_properties (
         .clk(clk),.rst_n(rst_n),.load_valid(load_valid),.load_ready(load_ready),

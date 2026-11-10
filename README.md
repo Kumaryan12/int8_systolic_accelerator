@@ -28,6 +28,7 @@ See [toolchain setup](docs/toolchain.md) for versions and individual commands.
 | UVM | 208 completed transactions, 3,328 output checks and one reset abort per seed; busy-start rejection and recovery |
 | Hardware tiled GEMM | Seven shapes, three seeds, 777 completed GEMMs; padding and cross-tile accumulation |
 | Memory-backed GEMM | Two tagged job slots, three synchronous RAMs, narrow valid/ready streams; 168 checked GEMMs |
+| Optional hard SRAM | Banked OpenRAM backend, latency-aware controller, eight shapes/three seeds and exact macro binding ([contract](docs/sram_backend.md)) |
 | AXI4-Lite peripheral | Independent channels, byte strobes, tagged CSRs, IRQs and qualified reset; routed gate tests and three cell PVTs pass at 50 MHz ([results](docs/results/checkpoint_13.md)) |
 | Memory pipeline performance | Eight-job overlapped schedules take 23–35% fewer cycles than the same interface driven serially; [measured scope](docs/results/checkpoint_8.md) |
 | Integer postprocessing | 1,900 Python/RTL comparisons of rounding, saturation, zero points and ReLU |
@@ -92,7 +93,9 @@ sweep passes setup/hold at 50 MHz for TT/SS/FF using the same extracted RC;
 [Trained model and dataset attribution](examples/digits/README.md) ·
 [Current status](docs/project_status.md) · [Roadmap](docs/roadmap.md)
 
-The memory uses a standard-cell fallback. The AXI4-Lite peripheral is verified
+The routed implementations use standard-cell RAM. An optional hard-SRAM
+backend is functionally verified and synthesis-bound; its macro layout remains
+to be integrated. The AXI4-Lite peripheral is verified
 in RTL and routed gates. Hard SRAM/BRAM, processor/DMA integration, RC corners,
 reset pulse/MTBF characterization, foundry DRC/LVS and real-device measurements
 remain open. Zero router errors

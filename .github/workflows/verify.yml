@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install compiler and simulation dependencies
-        run: sudo apt-get update && sudo apt-get install -y iverilog autoconf flex bison g++ make help2man libfl-dev
+        run: sudo apt-get update && sudo apt-get install -y yosys iverilog autoconf flex bison g++ make help2man libfl-dev
       - uses: actions/cache@v4
         id: verilator
         with:
@@ -54,4 +54,5 @@ jobs:
             build/run_*/memory_inference.svg
             build/run_*/memory_inference.vcd
             build/run_*/memory_benchmarks.json
+            build/run_*/sram_metrics.json
           if-no-files-found: warn
