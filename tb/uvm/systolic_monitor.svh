@@ -211,9 +211,19 @@ class systolic_monitor extends uvm_monitor;
 
     function void handle_reset();
 
+        systolic_transaction aborted_rsp;
+
         if (transaction_active) begin
 
             aborted_transactions++;
+            // An explicit terminal response prevents a stale request from
+            // being compared with the first completed job after reset.
+            aborted_rsp = systolic_transaction::type_id::create("reset_abort");
+            aborted_rsp.a_matrix = active_req.a_matrix;
+            aborted_rsp.b_matrix = active_req.b_matrix;
+            aborted_rsp.is_response = 1;
+            aborted_rsp.is_aborted = 1;
+            response_ap.write(aborted_rsp);
 
             `uvm_info(
                 "MONITOR_RESET",

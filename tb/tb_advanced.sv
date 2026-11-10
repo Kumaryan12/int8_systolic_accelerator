@@ -158,6 +158,12 @@ module tb_advanced;
                             (r==c) ? 127 : 0;
                     end
 
+                    // Cover all nine operand-sign pairs in a 4x4 input tile.
+                    6: begin
+                        a_expected[idx] = ((idx/3)%3 - 1)*127;
+                        b_expected[idx] = (idx%3 - 1)*127;
+                    end
+
                     // Random INT8 matrices
                     default: begin
                         a_expected[idx] = rand_int8();
@@ -367,7 +373,7 @@ module tb_advanced;
     // 7. ASYNCHRONOUS RESET DURING COMPUTATION
     // =========================================================
 
-    task automatic reset_mid_job;
+    task automatic reset_mid_job(input integer compute_edges);
 
         begin
 
@@ -389,8 +395,8 @@ module tb_advanced;
             @(negedge clk);
             start = 0;
 
-            // Let computation run for three cycles
-            repeat (3) @(negedge clk);
+            // Sweep reset assertion across every compute-cycle boundary.
+            repeat (compute_edges) @(negedge clk);
 
             // Assert reset during computation
             rst_n = 0;
@@ -451,7 +457,7 @@ module tb_advanced;
         // Six directed tests + 200 randomized tests
         for (
             integer id=0;
-            id<6+RANDOM_CASES;
+            id<7+RANDOM_CASES;
             id=id+1
         ) begin
 
@@ -460,20 +466,21 @@ module tb_advanced;
         end
 
         // Test reset during active computation
-        reset_mid_job();
-
-        // Verify recovery after reset
-        run_job(4, 1);
+        for (integer phase_id=0; phase_id<COMPUTE_CYCLES; phase_id++) begin
+            reset_mid_job(phase_id);
+            // A fresh job after every abort checks recovery and stale-state clearing.
+            run_job(4, 1);
+        end
 
 
         // =====================================================
         // 9. VERIFICATION COMPLETENESS CHECKS
         // =====================================================
 
-        if (jobs_passed != 7+RANDOM_CASES ||
+        if (jobs_passed != 7+RANDOM_CASES+COMPUTE_CYCLES ||
             busy_start_checks == 0 ||
             hold_checks == 0 ||
-            reset_checks != 1 ||
+            reset_checks != COMPUTE_CYCLES ||
             latency_checks != jobs_passed ||
             negative_seen == 0 ||
             positive_seen == 0 ||

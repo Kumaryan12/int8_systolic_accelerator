@@ -1,10 +1,10 @@
 PYTHON ?= python3
-SEEDS ?= 20261110
+SEEDS ?= 2026 20261110 42
 JOBS ?= 2
 RANDOM_CASES ?= 200
 RUN = $(PYTHON) scripts/regression.py --seeds $(SEEDS) --jobs $(JOBS) --random-cases $(RANDOM_CASES)
 
-.PHONY: verify regression python-test sim advanced coverage uvm synth sta
+.PHONY: verify regression python-test sim advanced coverage uvm sva synth sta
 
 # Each invocation creates a separate build/run_* directory and summary.json.
 verify regression:
@@ -13,7 +13,7 @@ verify regression:
 python-test:
 	$(RUN) --suite python
 
-sim advanced coverage uvm:
+sim advanced coverage uvm sva:
 	$(RUN) --suite $@
 
 synth:

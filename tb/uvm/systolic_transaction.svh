@@ -45,6 +45,9 @@ class systolic_transaction extends uvm_sequence_item;
     // 1 = completed output response
 
     bit is_response = 0;
+    bit inject_busy_start = 0;
+    bit abort_job = 0;
+    bit is_aborted = 0;
 
 
     // ========================================================

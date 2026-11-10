@@ -257,7 +257,17 @@ class systolic_sequence extends
 
 
         // ----------------------------------------------------
-        // C. SEQUENCE COMPLETION
+        // C. CONTROL SCENARIOS: rejected busy start, reset abort, recovery.
+        for (int control_id=0; control_id<3; control_id++) begin
+            req = systolic_transaction::type_id::create($sformatf("control_%0d", control_id));
+            start_item(req);
+            prepare_directed(req, control_id == 1 ? 3 : 4);
+            req.inject_busy_start = (control_id == 0);
+            req.abort_job = (control_id == 1);
+            finish_item(req);
+        end
+
+        // D. SEQUENCE COMPLETION
         // ----------------------------------------------------
 
         `uvm_info(

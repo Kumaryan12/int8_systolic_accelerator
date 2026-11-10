@@ -43,4 +43,5 @@ jobs:
           path: |
             build/run_*/summary.json
             build/run_*/*.log
+            build/run_*/*.info
           if-no-files-found: warn

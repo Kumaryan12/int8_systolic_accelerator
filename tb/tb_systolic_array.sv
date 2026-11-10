@@ -9,6 +9,8 @@ module tb_systolic_array;
     always #5 clk = ~clk;
 
     logic rst_n, start;
+    integer seed = 20261110;
+    integer seed_init;
     logic [N*N*DATA_W-1:0] a_matrix, b_matrix;
     wire busy, done;
     wire [N*N*ACC_W-1:0] c_matrix;
@@ -77,6 +79,9 @@ module tb_systolic_array;
     endtask
 
     initial begin
+        if ($value$plusargs("SEED=%d", seed)) begin end
+        $display("Baseline seed=%0d", seed);
+        seed_init = $urandom(seed);
         rst_n=1'b0;
         start=1'b0;
         a_matrix='0;

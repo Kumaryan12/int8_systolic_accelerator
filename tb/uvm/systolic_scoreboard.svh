@@ -62,6 +62,7 @@ class systolic_scoreboard extends uvm_scoreboard;
     int unsigned elements_failed = 0;
 
     int unsigned protocol_errors = 0;
+    int unsigned transactions_aborted = 0;
 
 
     // ========================================================
@@ -314,6 +315,12 @@ class systolic_scoreboard extends uvm_scoreboard;
                     "Null transaction received"
                 )
 
+            end else if (rsp.is_aborted) begin
+                if (req.a_matrix !== rsp.a_matrix || req.b_matrix !== rsp.b_matrix || !rsp.is_response) begin
+                    protocol_errors++;
+                    `uvm_error("SB_ABORT", "Reset-aborted response does not match pending request")
+                end
+                transactions_aborted++;
             end else begin
 
                 // --------------------------------------------
@@ -368,6 +375,9 @@ class systolic_scoreboard extends uvm_scoreboard;
             )
 
         end
+
+        if (requests_received != transactions_checked + transactions_aborted)
+            `uvm_error("SB_TERMINAL_COUNT", "Not every accepted request completed or aborted")
 
 
         // ----------------------------------------------------

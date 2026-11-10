@@ -82,7 +82,7 @@ class systolic_test extends uvm_test;
         );
 
         expected_transactions =
-            NUM_DIRECTED + num_random;
+            NUM_DIRECTED + num_random + 2;
 
         expected_elements =
             expected_transactions * NUM_OUTPUTS;
@@ -337,6 +337,16 @@ class systolic_test extends uvm_test;
         end
 
         // ----------------------------------------------------
+        // Both the monitor and scoreboard must observe the reset terminal event.
+        if (env.agent.driver.aborted_transactions != 1 ||
+            env.agent.monitor.aborted_transactions != 1 ||
+            env.scoreboard.transactions_aborted != 1 ||
+            env.agent.driver.busy_start_checks != 1 ||
+            env.agent.monitor.accepted_transactions != expected_transactions + 1)
+            `uvm_fatal("CONTROL_COVERAGE", "Required reset/busy-start scenarios or abort bookkeeping missing")
+
+        `uvm_info("CONTROL_PASS", "Reset abort=1; busy-start=1; post-reset scoreboard recovery passed", UVM_NONE)
+
         // J. FINAL TEST COMPLETION
         // ----------------------------------------------------
 

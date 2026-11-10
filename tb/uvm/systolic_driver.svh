@@ -36,6 +36,8 @@ class systolic_driver extends
     // Driver statistics
     int unsigned transactions_driven = 0;
     int unsigned completed_transactions = 0;
+    int unsigned aborted_transactions = 0;
+    int unsigned busy_start_checks = 0;
 
 
     // ========================================================
@@ -197,6 +199,32 @@ class systolic_driver extends
              cycle++) begin
 
             @(vif.driver_cb);
+
+            if (tr.abort_job && cycle == 2) begin
+                vif.driver_cb.rst_n <= 1'b0;
+                vif.driver_cb.start <= 1'b0;
+                #1;
+                if (vif.busy !== 0 || vif.done !== 0 || vif.c_matrix !== '0)
+                    `uvm_fatal("RESET_ABORT", "Asynchronous reset failed during active transaction")
+                repeat (2) @(vif.driver_cb);
+                vif.driver_cb.rst_n <= 1'b1;
+                @(vif.driver_cb);
+                if (vif.driver_cb.busy !== 0 || vif.driver_cb.done !== 0)
+                    `uvm_fatal("RESET_RECOVERY", "DUT not idle after reset abort")
+                aborted_transactions++;
+                return;
+            end
+
+            if (tr.inject_busy_start && cycle == 1) begin
+                if (vif.driver_cb.busy !== 1)
+                    `uvm_fatal("BUSY_START", "Busy-start scenario did not occur while busy")
+                vif.driver_cb.start <= 1'b1;
+                vif.driver_cb.a_matrix <= ~tr.a_matrix;
+                vif.driver_cb.b_matrix <= ~tr.b_matrix;
+                busy_start_checks++;
+            end else begin
+                vif.driver_cb.start <= 1'b0;
+            end
 
             // Check whether computation has finished
             if (vif.driver_cb.done === 1'b1) begin

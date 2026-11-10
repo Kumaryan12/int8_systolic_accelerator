@@ -11,8 +11,9 @@ make verify
 ```
 
 `make verify` runs Python tests, rebuilds and runs baseline and advanced Icarus
-tests, checks all 14 defined functional bins, then rebuilds and runs UVM through
-Verilator. It requires Python 3.10+, Icarus/vvp, Verilator, a C++ compiler, and
+tests, checks all 14 defined functional bins plus nine operand-sign cross bins,
+then rebuilds and runs UVM and temporal SVA through Verilator. It requires
+Python 3.10+, Icarus/vvp, Verilator, a C++ compiler, and
 make. The runner uses only Python's standard library. Missing tools are errors;
 a zero process exit without required pass markers is also an error.
 
@@ -29,10 +30,22 @@ make sim
 make advanced
 make coverage
 make uvm
+make sva
 make verify SEEDS="2026 20261110 42" RANDOM_CASES=200 JOBS=2
 make synth
 make sta
 ```
+
+Default seeds are `2026 20261110 42`. Advanced RTL tests run N=2,3,4,8;
+reset is asserted at each compute-cycle boundary and followed by a recovery
+job. UVM includes a busy-start attempt and a reset-aborted transaction, with
+explicit scoreboard cancellation and a successful recovery job. Six temporal
+properties check acceptance/clearing, mutually exclusive controls, done pulse
+width, early completion, exact completion and idle-output retention.
+
+`make sva` exports Verilator code coverage and LCOV to its evidence directory.
+Coverage reports include verification code and collapsed instance hierarchies;
+they must not be presented as exhaustive functional coverage closure.
 
 Tool executables default to PATH and can be overridden with `IVERILOG`, `VVP`,
 `VERILATOR`, `YOSYS`, and `STA` environment variables. For the current machine:

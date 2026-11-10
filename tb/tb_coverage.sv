@@ -77,6 +77,12 @@ module systolic_coverage #(
     reg job_active = 0;
 
     integer covered_bins;
+    integer sign_pair_hits [0:8];
+    integer sign_pairs_covered;
+
+    initial begin
+        for (integer bin_id=0; bin_id<9; bin_id++) sign_pair_hits[bin_id]=0;
+    end
 
 
     // ========================================================
@@ -137,6 +143,8 @@ module systolic_coverage #(
                     b_value = $signed(
                         b_matrix[DATA_W*idx +: DATA_W]
                     );
+                    sign_pair_hits[(a_value < 0 ? 0 : a_value == 0 ? 1 : 2)*3 +
+                                   (b_value < 0 ? 0 : b_value == 0 ? 1 : 2)]++;
 
                     // Track operand signs
                     if (a_value > 0)
@@ -278,6 +286,10 @@ module systolic_coverage #(
     final begin
 
         covered_bins = 0;
+        sign_pairs_covered = 0;
+        for (integer bin_id=0; bin_id<9; bin_id++)
+            if (sign_pair_hits[bin_id]>0) sign_pairs_covered++;
+        $display("Sign-pair bins : %0d / 9", sign_pairs_covered);
 
         // Input bins: 6
         if (zero_matrix_hits > 0) covered_bins++;

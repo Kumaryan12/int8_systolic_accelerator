@@ -60,6 +60,11 @@ module tb_uvm_top;
     // 5. UVM CONFIGURATION
     // ========================================================
 
+    systolic_sva properties (
+        .clk(clk), .rst_n(dut_if.rst_n), .start(dut_if.start),
+        .busy(dut_if.busy), .done(dut_if.done), .c_matrix(dut_if.c_matrix)
+    );
+
     initial begin
 
         $display("");
