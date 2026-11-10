@@ -1,0 +1,8 @@
+# Generic structural synthesis check for the default 3x5 by 5x7 wrapper.
+read_verilog -sv rtl/mac_pe.sv rtl/systolic_array.sv rtl/tiled_gemm.sv
+hierarchy -check -top tiled_gemm
+synth -top tiled_gemm -flatten
+check -assert
+stat -width
+write_verilog -noattr build/tiled_gemm_netlist.v
+write_json build/tiled_gemm_netlist.json

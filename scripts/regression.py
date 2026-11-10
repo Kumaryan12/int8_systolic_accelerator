@@ -124,6 +124,17 @@ class Regression:
                      f"+NUM_RANDOM={self.args.random_cases}", f"+verilator+seed+{seed}"],
                      [r"\[TEST_PASS\]", r"\[CONTROL_PASS\]", r"UVM_ERROR\s*:\s*0", r"UVM_FATAL\s*:\s*0"])
 
+    def gemm(self):
+        for m, k, n in ((1,1,1), (3,5,7), (4,4,4), (7,9,5), (8,8,8), (9,2,11), (2,17,3)):
+            label = f"gemm_{m}x{k}x{n}"
+            executable = self.directory / label
+            self.run(f"{label}_build", [self.tool("iverilog"), "-g2012", "-s", "tb_tiled_gemm",
+                     "-o", str(executable), f"-Ptb_tiled_gemm.M={m}", f"-Ptb_tiled_gemm.K={k}",
+                     f"-Ptb_tiled_gemm.N={n}"] + RTL + ["rtl/tiled_gemm.sv", "tb/tb_tiled_gemm.sv"])
+            for seed in self.args.seeds:
+                self.run(f"{label}_seed{seed}", [self.tool("vvp"), str(executable), f"+SEED={seed}"],
+                         [r"PASS: Tiled RTL GEMM", r"reset_aborts=3"])
+
     def sva(self):
         obj = self.directory / "sva_obj"
         self.run("sva_build", [self.tool("verilator"), "--cc", "--exe", "--build", "--timing", "--assert",
@@ -141,7 +152,7 @@ class Regression:
                  str(self.directory / "coverage.info")] + data)
 
     def synthesis(self):
-        for variant in ("generic", "sky130_map", "sky130_timing_clean"):
+        for variant in ("generic", "sky130_map", "sky130_timing_clean", "tiled_gemm"):
             original = (ROOT / f"synth/{variant}.ys").read_text()
             script = re.sub(r"(?<![/\w])build/([\w.]+)", lambda match: f'"{self.directory / match[1]}"', original)
             path = self.directory / f"{variant}.ys"
@@ -149,11 +160,11 @@ class Regression:
             log = self.run(f"synth_{variant}", [self.tool("yosys"), "-Q", "-s", str(path)],
                      [r"Found and reported 0 problems", r"End of script"])
             name = {"generic": "systolic_netlist", "sky130_map": "systolic_sky130",
-                    "sky130_timing_clean": "systolic_sky130_clean"}[variant]
+                    "sky130_timing_clean": "systolic_sky130_clean", "tiled_gemm": "tiled_gemm_netlist"}[variant]
             netlist = json.loads((self.directory / f"{name}.json").read_text())
             area = re.search(r"Chip area for module.*: ([\d.]+)", log)
             self.report.setdefault("synthesis", {})[variant] = {
-                "cells": len(netlist["modules"]["systolic_array"]["cells"]),
+                "cells": len(netlist["modules"]["tiled_gemm" if variant == "tiled_gemm" else "systolic_array"]["cells"]),
                 "cell_area_um2": float(area[1]) if area else None,
             }
             self.save()
@@ -233,6 +244,8 @@ class Regression:
             self.uvm()
         if suite in ("sva", "verify"):
             self.sva()
+        if suite in ("gemm", "verify"):
+            self.gemm()
         if suite in ("synth", "ppa", "gate"):
             self.synthesis()
         if suite in ("ppa", "gate"):
@@ -245,7 +258,7 @@ class Regression:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "synth", "ppa", "gate", "architecture"], default="verify")
+    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "synth", "ppa", "gate", "architecture"], default="verify")
     parser.add_argument("--seeds", type=int, nargs="+", default=[20261110])
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--sizes", type=int, nargs="+", default=[2, 3, 4, 8])
