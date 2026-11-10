@@ -1,0 +1,46 @@
+name: Verification
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install compiler and simulation dependencies
+        run: sudo apt-get update && sudo apt-get install -y iverilog autoconf flex bison g++ make help2man libfl-dev
+      - uses: actions/cache@v4
+        id: verilator
+        with:
+          path: ~/.local/verilator-5.054
+          key: ${{ runner.os }}-verilator-5.054-v1
+      - name: Build Verilator 5.054
+        if: steps.verilator.outputs.cache-hit != 'true'
+        run: |
+          git clone --depth 1 --branch v5.054 https://github.com/verilator/verilator.git /tmp/verilator
+          cd /tmp/verilator
+          autoconf
+          ./configure --prefix="$HOME/.local/verilator-5.054"
+          make -j2
+          make install
+      - name: Run verification from source
+        run: |
+          export PATH="$HOME/.local/verilator-5.054/bin:$PATH"
+          make verify SEEDS="2026 20261110 42"
+      - name: Upload regression evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-evidence
+          path: |
+            build/run_*/summary.json
+            build/run_*/*.log
+          if-no-files-found: warn

@@ -1,15 +1,14 @@
-# INT8 Systolic Array Accelerator — RTL + Verification Starter
+# INT8 Systolic Array Accelerator
 
 **Goal:** Build an interview-ready AI-hardware project: a 4x4 signed INT8
 matrix-multiplication tile in SystemVerilog, then improve its verification
 in ways relevant to ASIC Design & Verification roles.
 
-**Status (reviewed 10 November 2026):** Baseline and advanced RTL simulations
-pass, as do all 9 Python tests. The existing UVM executable also passes its
-206-transaction test. SKY130 synthesis and pre-layout timing reports are available.
-See [current project status](docs/project_status.md) for evidence, limitations,
-and the remaining work; the original phase documents below describe the starter
-plan and have not yet been fully updated.
+**Status:** The compute tile has passing Python, Icarus RTL, and UVM tests.
+`make verify` rebuilds and runs the verification suite, retaining logs and a
+machine-readable summary. SKY130 synthesis and pre-layout timing scripts are
+included. See [toolchain instructions](docs/toolchain.md) and
+[project status](docs/project_status.md) for evidence and remaining work.
 
 ## Architecture
 
@@ -43,16 +42,20 @@ for N=4 (plus one clock edge to accept the transaction).
 ## Get started
 
 ```bash
-# Works anywhere with Python 3, with no third-party libraries
+# Initialize the pinned UVM dependency after cloning
+git submodule update --init --recursive
+
+# Rebuild and run the complete verification suite
+make verify
+
+# Python-only checks, no third-party Python libraries required
 make python-test
 python3 scripts/reference.py
-
-# Requires Icarus Verilog / vvp installed
-make sim
 ```
 
-`make sim` compiles the RTL and runs 5 directed + 100 random matrix tests.
-It fails on any mismatch. It must be executed before claiming RTL validation.
+`make verify` requires Icarus/vvp, Verilator, a C++ compiler, make, and Python.
+`make sim` runs the baseline tests alone. See the toolchain guide for individual
+targets, multiple seeds, and synthesis/timing commands.
 
 ## Repository layout
 
@@ -68,10 +71,9 @@ docs/resume_guidance.md     Accurate resume wording
 ```
 
 ## Next technical milestones
-1. Run HDL simulator and debug until all tests pass.
-2. Add reset-during-operation/start-while-busy tests, SVA, coverage.
-3. Build a class-based SystemVerilog/UVM verification environment.
-4. Run synthesis and document actual area/timing.
-5. Extend to tiled GEMM and INT8 quantization/requantization.
+1. Expand seeded regression, temporal assertions and UVM control scenarios.
+2. Validate mapped-netlist equivalence and document implementation assumptions.
+3. Connect tiled GEMM to the hardware and complete an inference demonstration.
+4. Measure physical timing and power when the physical-design flow is available.
 
 **Note:** This is a learning/portfolio prototype, not a production IP core.

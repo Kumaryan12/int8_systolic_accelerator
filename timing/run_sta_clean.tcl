@@ -32,6 +32,13 @@ set sdc_file [file join $project_root \
 
 set report_dir [file join $project_root build]
 
+if {[info exists ::env(NETLIST_FILE)]} {
+    set netlist_file $::env(NETLIST_FILE)
+}
+if {[info exists ::env(REPORT_DIR)]} {
+    set report_dir $::env(REPORT_DIR)
+}
+
 file mkdir $report_dir
 
 # ------------------------------------------------------------

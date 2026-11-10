@@ -1,14 +1,23 @@
-.PHONY: sim python-test clean
+PYTHON ?= python3
+SEEDS ?= 20261110
+JOBS ?= 2
+RANDOM_CASES ?= 200
+RUN = $(PYTHON) scripts/regression.py --seeds $(SEEDS) --jobs $(JOBS) --random-cases $(RANDOM_CASES)
 
-# Install Icarus Verilog (iverilog + vvp) to run the RTL testbench.
-sim:
-	@mkdir -p build
-	iverilog -g2012 -Wall -s tb_systolic_array -o build/systolic_sim \
-		rtl/mac_pe.sv rtl/systolic_array.sv tb/tb_systolic_array.sv
-	vvp build/systolic_sim
+.PHONY: verify regression python-test sim advanced coverage uvm synth sta
+
+# Each invocation creates a separate build/run_* directory and summary.json.
+verify regression:
+	$(RUN) --suite verify
 
 python-test:
-	python3 -m unittest discover -s scripts -p 'test_*.py' -v
+	$(RUN) --suite python
 
-clean:
-	rm -f build/systolic_sim build/*.vcd
+sim advanced coverage uvm:
+	$(RUN) --suite $@
+
+synth:
+	$(RUN) --suite synth
+
+sta:
+	$(RUN) --suite ppa

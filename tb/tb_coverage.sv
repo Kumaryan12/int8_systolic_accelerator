@@ -379,9 +379,9 @@ endmodule
 //
 // ============================================================
 
-module tb_coverage;
+module tb_coverage #(parameter integer RANDOM_CASES = 200);
 
-    tb_advanced testbench();
+    tb_advanced #(.RANDOM_CASES(RANDOM_CASES)) testbench();
 
     systolic_coverage #(
         .N(4),
