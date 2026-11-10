@@ -1,7 +1,7 @@
 # Project status — 10 November 2026
 
-The functional prototype now includes a verified compute tile, hardware tiled
-GEMM, and hardware output requantization/ReLU. A single `make verify` rebuilds
+The prototype now includes memory-backed GEMM, a trained classifier, and a
+routed SKY130 design with extracted timing and workload-annotated power. A single `make verify` rebuilds
 and checks Python references, RTL, UVM, temporal assertions, coverage, tiled
 matrices, and the small quantized layer example.
 
@@ -17,6 +17,8 @@ matrices, and the small quantized layer example.
 | 6 | Architecture explanation, recorded waveform illustration, updated verification plan, scope and resume wording | [Architecture](architecture.md) |
 | 7 | Three synchronous RAMs, two tagged job slots, narrow host streams, backpressure and reset cancellation | [Results](results/checkpoint_7.md) |
 | 8 | Measured serial/overlapped schedules, stream assertions and the same layer through the memory-backed interface | [Results](results/checkpoint_8.md) |
+| 9 | Trained classifier evaluated entirely in RTL and a pinned routed SKY130 flow | [Results](results/checkpoint_9.md) |
+| 10 | Routed gate tests, extracted 100 MHz analysis, workload power and layout image | [Results](results/checkpoint_10.md) |
 
 The project is stored in the private GitHub repository
 [Kumaryan12/int8_systolic_accelerator](https://github.com/Kumaryan12/int8_systolic_accelerator).
@@ -26,7 +28,7 @@ by Git; curated checkpoint summaries are committed.
 
 ## Current functional evidence
 
-- 18 Python unit tests, including regression failure/timeout handling.
+- 28 Python unit tests, including model training and physical/power report failure gates.
 - Baseline: 105 matrix pairs per seed, across three seeds.
 - Advanced RTL: 211/214/217/229 completions per seed for N=2/3/4/8,
   with 4/7/10/22 reset-abort positions and a recovery after each abort.
@@ -40,25 +42,28 @@ by Git; curated checkpoint summaries are committed.
 - Memory-backed successor: 168 GEMMs, 5,808 output checks, and three retained
   synchronous 1R1W memories; default generic fallback maps to 20,025 cells.
 
-## Remaining work
+- Trained model: 650 parameters, 3,823 training images, all 1,797 official test
+  images evaluated in RTL, 95.0473% INT8 accuracy and 18,000 exact logits including
+  padding. Dataset/license/seed/calibration provenance is recorded.
+- Routed default memory top: 20,630 standard cells, 203,764 µm² cell area,
+  zero reported detailed-router DRC errors and a passed flow transformation LEC.
+  At 100 MHz after extraction: +1.061157 ns setup and +0.139495 ns hold slack.
+  Workload-annotated power estimate: 27.69079 mW; 53,754 pins annotated, two not.
 
-1. **Physical implementation:** acquire a complete physical PDK/flow, perform
-   placement, clock-tree synthesis, routing, parasitic extraction and power
-   analysis. Add corner coverage and reset recovery/removal analysis. Current
-   area and frequency estimates are synthesis/pre-layout results only.
-2. **Memory integration:** the narrow valid/ready interface and two-job-slot
-   RAM architecture, transfer-inclusive benchmarks and layer demo are implemented.
-   Map the inferred memories to a real macro/BRAM
-   or add an AXI/DMA adapter for a concrete target. The old packed-bus wrapper
-   remains a reference and is substantially more expensive in generic logic.
-3. **Verification closure:** analyze uncovered expression/branch cases, add
-   justified coverage goals, consider formal equivalence and reset assumptions,
-   and expand supported parameter/configuration validation. Passing defined bins
-   and finite seed sets are not exhaustive proof.
-4. **Model integration:** use a trained model and representative calibration,
-   add bias/per-channel quantization where required, measure task accuracy and
-   end-to-end transfer-inclusive performance. The current demo is synthetic.
+## Remaining target-specific work
 
-The next substantial design decision is the memory/host interface. Physical
-signoff also needs technology views not present in this checkout. Neither is
-silently counted as complete by the functional regression.
+1. **Physical signoff:** add relevant PVT/RC corners, reset release and
+   recovery/removal constraints, foundry DRC/LVS, power-integrity/thermal checks
+   and package/IO integration. Typical-corner routed estimates are complete;
+   production signoff and silicon measurement are not.
+2. **Memory/bus integration:** map the retained 1R1W memories to an actual SRAM
+   macro or FPGA BRAM, and choose an AXI/DMA adapter for a concrete system.
+   The portable stream, ownership, buffering and cycle benchmarks are complete.
+3. **Verification closure:** review remaining uncovered expressions/branches,
+   set target-specific coverage goals and consider a full RTL-to-layout formal
+   proof. Defined functional bins, stream properties and implementation LEC
+   do not establish exhaustive correctness for every parameter/configuration.
+4. **Deployment:** integrate a larger model/application and measure hardware
+   performance including the actual host bus. The trained digit classifier
+   now provides real task accuracy, with all official test examples checked
+   in RTL; its parameterization has not been placed/routed.

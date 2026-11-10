@@ -1,8 +1,8 @@
 # INT8 Systolic Array Accelerator
 
-A SystemVerilog matrix-multiplication prototype for ASIC design and verification:
-a parameterized systolic tile, a rectangular hardware GEMM scheduler, and
-integer output requantization with ReLU.
+A SystemVerilog AI-hardware prototype: a systolic tile, memory-backed GEMM
+with two job slots, integer output scaling, a trained digit-classifier demo,
+and a routed SKY130 implementation with extracted timing and activity-based power.
 
 [![Verification](https://github.com/Kumaryan12/int8_systolic_accelerator/actions/workflows/verify.yml/badge.svg)](https://github.com/Kumaryan12/int8_systolic_accelerator/actions/workflows/verify.yml)
 
@@ -30,7 +30,8 @@ See [toolchain setup](docs/toolchain.md) for versions and individual commands.
 | Memory pipeline performance | Eight-job overlapped schedules take 23–35% fewer cycles than the same interface driven serially; [measured scope](docs/results/checkpoint_8.md) |
 | Integer postprocessing | 1,900 Python/RTL comparisons of rounding, saturation, zero points and ReLU |
 | RTL layer demo | 21 exact integer outputs; 48 clocks; max float-reference error 0.02152 |
-| Base-tile implementation | SKY130 mapping, functional gate simulation and pre-layout OpenSTA; array-size area comparison |
+| Trained classifier | All 1,797 official UCI test images run through RTL; 95.05% INT8-logit accuracy |
+| Routed implementation | Default memory-backed top: SKY130 GDS/SPEF, zero router DRC errors, +1.061 ns setup slack at 100 MHz |
 
 ## Architecture and recorded waveform
 
@@ -56,6 +57,9 @@ make memory-synth              # Check inferred RAM ports and generic fallback
 make gate                      # Rebuild and test the mapped base-tile netlist
 make sta                       # Synthesis, gate tests and OpenSTA (STA on PATH)
 make architecture              # N=2,3,4,8 mapped cell-count/area sweep
+make model                     # Train/evaluate and run every official test image in RTL
+make physical                  # Pinned Docker SKY130 route/extraction flow
+make postroute PHYSICAL_RUN="build/run_<physical-run>"  # Routed gates, timing, power, image
 ```
 
 Every run creates `build/run_<UTC timestamp>_<unique suffix>/`. Its summary
@@ -65,15 +69,23 @@ runs the functional regression on Ubuntu and archives evidence.
 
 ## Implementation results and scope
 
-The standalone clean 4×4 SKY130HD mapping reports **9,727 cells** and
-**80,737.4336 µm² of summed cell area**. At TT, 25 C, 1.8 V with ideal clocks
-and no extracted wires, OpenSTA reports **+2.872 ns setup slack** at a 10 ns
-clock target and an estimated minimum period of **7.13 ns**. These results
-apply to the base tile, not the tiled wrapper plus output postprocessing.
+The default **memory-backed** 3×5 by 5×7 top has a routed SKY130HD result:
+20,630 standard cells and 203,764 µm² of standard-cell area. Extracted timing
+analysis at **100 MHz** reports **+1.061157 ns setup** and **+0.139495 ns hold**
+slack. An eight-job routed-netlist switching trace gives **27.69079 mW** estimated
+power, with 53,754 annotated pins and two unannotated pins. These estimates use
+TT, 25 C, 1.8 V; reset release is explicitly excepted.
 
-The prototype has no placed/routed implementation or power measurement. Its
-new memory path infers synchronous RAMs; physical SRAM/BRAM mapping and an
-AXI/DMA adapter remain target-specific work. The layer demo uses synthetic
-inputs and weights. See [current status](docs/project_status.md),
-[verification plan](docs/verification_plan.md), [roadmap](docs/roadmap.md), and
-[checkpoint results](docs/results/) for completed work and remaining milestones.
+![Routed SKY130 upper-metal overview](docs/assets/routed_sky130.png)
+
+[Physical flow and analysis](physical/README.md) ·
+[Trained model and dataset attribution](examples/digits/README.md) ·
+[Current status](docs/project_status.md) · [Roadmap](docs/roadmap.md)
+
+The memory uses a standard-cell fallback; hard SRAM/BRAM and AXI/DMA integration
+remain target-specific work. Additional PVT corners, reset recovery/removal,
+foundry DRC/LVS and real-device measurements remain open. Zero router errors
+and typical-corner timing are not production signoff. Historical base-tile
+pre-layout numbers are kept in the [checkpoint reports](docs/results/); they
+should not be confused with the larger routed memory-backed design or the
+different 4×65×10 classifier elaboration.

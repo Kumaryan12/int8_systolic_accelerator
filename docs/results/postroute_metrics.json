@@ -1,0 +1,26 @@
+{
+  "physical_run": "build/run_20261110T100446Z_7e1u3q9h",
+  "clock_period_ns": 10,
+  "setup_slack_ns": 1.061157,
+  "hold_slack_ns": 0.139495,
+  "power": {
+    "vectorless": {
+      "internal_W": 0.02089619,
+      "switching_W": 0.005675524,
+      "leakage_W": 8.977934e-08,
+      "total_W": 0.0265718
+    },
+    "workload": {
+      "internal_W": 0.02138183,
+      "switching_W": 0.006308873,
+      "leakage_W": 9.050788e-08,
+      "total_W": 0.02769079
+    }
+  },
+  "activity_annotation": {
+    "vcd_pins": 53754,
+    "unannotated_pins": 2,
+    "fraction": 0.9999627948508073
+  },
+  "activity_scope": "zero-delay routed-netlist simulation; eight jobs plus protocol/reset preparations"
+}

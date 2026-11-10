@@ -15,8 +15,17 @@
   Python-referenced layer demo; automated source builds and evidence capture
   through GitHub Actions.
 
-Select two or three bullets for a resume. Explain output-stationary dataflow,
-wavefront skew, accumulator sizing, reset cancellation, padding and throughput
-accounting in an interview. Follow the linked checkpoint evidence for exact
-scope. The layer uses synthetic weights; the project has no placed/routed chip,
-measured device Fmax, power result or model-accuracy benchmark.
+- Built a two-slot synchronous-memory host interface; reduced the default
+  generic implementation from 134,088 to 20,025 cells, with independently
+  measured transfer-overlap cycle improvements on the same interface.
+- Routed the default memory-backed top in SKY130HD with extracted 100 MHz
+  setup/hold slack of +1.061/+0.139 ns and zero detailed-router DRC errors;
+  estimated 27.69 mW from an annotated routed-netlist activity trace at TT.
+- Trained a 650-parameter digit classifier and evaluated all 1,797 official
+  held-out test images in RTL, matching all integer logits and achieving
+  95.05% INT8 classification accuracy.
+
+Select two or three bullets for a resume. Keep parameterizations distinct:
+base-tile mapping, default memory-top routing and classifier accuracy are
+separate results. Routed power/frequency are tool estimates, not silicon
+measurements; reset release, additional corners and foundry signoff remain open.

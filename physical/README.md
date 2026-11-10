@@ -3,6 +3,8 @@
 ```sh
 # Requires a running Docker engine; the pinned image is pulled if missing.
 make physical
+# Yosys and Icarus/vvp are also required for routed-netlist workload simulation.
+make postroute PHYSICAL_RUN="build/run_<successful-physical-run>"
 ```
 
 The driver runs the official
@@ -53,3 +55,31 @@ not every parameterization or the trained classifier elaboration.
 all flow logs/reports and `results/sky130hd/int8_memory_gemm/base/6_final.*`.
 Large physical artifacts stay out of Git. A manually triggered **SKY130
 physical flow** Actions workflow can rebuild and archive them independently.
+
+## Extracted 100 MHz analysis and measured activity
+
+`make postroute` validates physical-artifact checksums, generates functional
+cell models from the exact implementation Liberty, and simulates the routed
+netlist against the independent integer scoreboard. It then analyzes the same
+extracted design with a 10 ns clock constraint, annotates a VCD and renders GDS.
+The physical placement/routing is reused; no new optimized layout is implied.
+
+| Metric at 100 MHz | Recorded result |
+|---|---:|
+| Extracted setup slack | +1.061157 ns |
+| Extracted hold slack | +0.139495 ns |
+| Workload-annotated pin activities | 53,754 |
+| Unannotated pins | 2 |
+| Workload-annotated total power | 27.69079 mW |
+| Vectorless total power, same frequency | 26.57180 mW |
+
+The activity trace comes from zero-delay simulation of the routed netlist,
+including eight matrix jobs and protocol/reset preparations. Extracted wires
+are included in power analysis; SDF/glitch-accurate simulation is not. The result
+is workload-specific and remains a tool estimate. The annotation gate rejects
+reports below 95% measured-pin coverage; this trace reaches 99.9963%.
+
+![Actual routed GDS, upper routing layers](../docs/assets/routed_sky130.png)
+
+The rendering shows met2–met5 from the actual generated GDS for readability.
+Large GDS/ODB/SPEF/VCD files remain in the run artifacts rather than Git.

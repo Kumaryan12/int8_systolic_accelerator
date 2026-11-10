@@ -1,0 +1,31 @@
+{
+  "samples": 1797,
+  "float_correct": 1707,
+  "integer_correct": 1705,
+  "int8_output_correct": 1708,
+  "float_accuracy": 0.9499165275459098,
+  "integer_accuracy": 0.9488035614913745,
+  "int8_output_accuracy": 0.9504730105731776,
+  "float_int8_prediction_agreement": 0.996661101836394,
+  "saturated_output_logits": 0,
+  "rtl_samples": 1797,
+  "rtl_logits_checked": 18000,
+  "rtl_integer_mismatches": 0,
+  "rtl_correct": 1708,
+  "rtl_valid_logits_checked": 17970,
+  "rtl_padding_logits_checked": 30,
+  "rtl_accuracy": 0.9504730105731776,
+  "parameters": 650,
+  "training_seconds": 10.211,
+  "training": {
+    "epochs": 35,
+    "seed": 20261110,
+    "initial_learning_rate": 0.05,
+    "l2": 0.0001
+  },
+  "train_samples": 3823,
+  "data_sha256": "0d7b054fea010270e9b3f06411c654c5e59547732ad626381980baffe0a23fb0",
+  "output_scale": 0.12623766828737593,
+  "weight_scale": 0.030705151935986552,
+  "rtl_scope": "all 1797 official test images, batched four at a time; three padded rows checked separately"
+}

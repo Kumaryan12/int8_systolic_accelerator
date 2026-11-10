@@ -24,19 +24,24 @@
 
 ## Implementation and verification work still open
 
-- [ ] Full physical PDK/tool flow, floorplan, placement, clock tree and routing.
-- [ ] Extracted setup/hold analysis across relevant corners and reset recovery/removal.
-- [ ] Activity-based power analysis and mapped timing for the complete GEMM layer.
-- [ ] Formal equivalence or stronger bounded proofs where useful.
+- [x] Pinned SKY130 flow: floorplan, placement, clock tree, routing, GDS and extraction.
+- [x] Extracted typical-corner setup/hold analysis at 100 MHz.
+- [ ] Additional PVT/RC corners, reset release/recovery/removal and foundry signoff.
+- [x] Workload activity-based power estimate for the routed default memory-backed top.
+- [ ] Map/time the complete classifier elaboration and postprocessing for a concrete target.
+- [x] Flow implementation-transformation LEC and routed functional gate tests.
+- [ ] Full RTL-to-layout formal proof where useful.
 - [ ] Uncovered-point review and justified functional/code coverage closure.
 - [ ] Additional parameter/width and host-protocol robustness cases.
 
 ## Model-level demonstration
 
-- [ ] Integrate a trained model with representative calibration data.
-- [ ] Add bias and per-channel quantization where the model requires them.
-- [ ] Evaluate task-level accuracy and measured performance on an actual target.
+- [x] Train a digit classifier and calibrate using training data only.
+- [x] Implement classifier bias through a constant input feature in the RTL MACs.
+- [ ] Add per-channel quantization if a larger target model requires it.
+- [x] Evaluate all 1,797 official test images in RTL and report task accuracy.
+- [ ] Measure performance on an actual FPGA or fabricated chip.
 
-Existing pre-layout estimates and synthetic layer results must retain their
-scope when presented on GitHub or a resume. No production-IP, power or device
-speedup claim is justified by the current results.
+Keep base-tile pre-layout numbers, default memory-top routed estimates, and
+classifier task accuracy distinct. Workload power is a tool estimate; no
+measured-device speedup or production signoff claim is justified.

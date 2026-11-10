@@ -37,6 +37,9 @@ make memory
 make memory-synth
 make memory-sva
 make memory-bench
+make model
+make physical
+make postroute PHYSICAL_RUN="build/run_<successful-physical-run>"
 make verify SEEDS="2026 20261110 42" RANDOM_CASES=200 JOBS=2
 make synth
 make sta
@@ -89,3 +92,14 @@ Exact CI tool versions appear in its archived summary.
 
 Generated binaries, netlists and large build directories are excluded from Git.
 Small curated result summaries belong in `docs/results/` with their provenance.
+
+`make model` downloads a checksum-pinned public digit dataset on first use,
+trains with only Python's standard library, and evaluates every official test
+image through RTL. Data and generated weights remain in `build/`.
+
+`make physical` needs Docker and uses the image pinned in
+`physical/toolchain.json`. It copies a source snapshot rather than mounting
+the workspace, disables runtime network access, and retains flow outputs.
+`make postroute` additionally uses host Yosys/Icarus for functional cell models
+and a routed-netlist switching trace, then runs timing/power/rendering in the
+same container image. See `physical/README.md` for implementation constraints.

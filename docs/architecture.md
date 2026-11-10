@@ -66,5 +66,8 @@ See [checkpoint 3](results/checkpoint_3.md) for the mapped size sweep and
 buses and variable indexing make the wrapper expensive (about 134,088 generic
 cells in the current default synthesis); generic cells cannot be compared
 directly with SKY130 mapped-cell counts. SRAM-oriented buffering and a concrete
-host interface are the next architecture work. Physical-design and power
-results need a complete PDK and implementation flow.
+host interface have now been implemented in the memory-backed successor; see
+`memory_interface.md`. It retains three synchronous RAMs and two tagged slots,
+and its generic fallback has 20,025 cells. The SKY130 flow maps those memories
+into standard cells and produces GDS/extracted timing. See
+`../physical/README.md` for the exact routed top, workload power and limitations.

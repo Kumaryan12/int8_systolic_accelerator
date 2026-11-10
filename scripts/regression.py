@@ -368,11 +368,17 @@ class Regression:
         if suite=="model":
             from digit_model import run_model
             run_model(self)
+        if suite=="postroute":
+            if not self.args.physical_run:
+                raise RuntimeError("Set --physical-run to a successful physical run directory")
+            from postroute import run_postroute
+            run_postroute(self)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "memory", "memory-sva", "memory-bench", "memory-synth", "inference", "synth", "ppa", "gate", "architecture", "physical", "model"], default="verify")
+    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "memory", "memory-sva", "memory-bench", "memory-synth", "inference", "synth", "ppa", "gate", "architecture", "physical", "postroute", "model"], default="verify")
+    parser.add_argument("--physical-run")
     parser.add_argument("--seeds", type=int, nargs="+", default=[20261110])
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--sizes", type=int, nargs="+", default=[2, 3, 4, 8])

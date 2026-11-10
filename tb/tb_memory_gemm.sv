@@ -1,11 +1,11 @@
 `timescale 1ns/1ps
 module tb_memory_gemm #(
-    parameter int M=3,K=5,N=7,TILE=4,JOBS=8,OVERLAP=1,STALLS=1
+    parameter int M=3,K=5,N=7,TILE=4,JOBS=8,OVERLAP=1,STALLS=1,CLOCK_HALF=5
 );
     localparam int AW=M*K,BW=K*N,CW=M*N,WORDS=AW+BW;
     localparam int OW=16+$clog2(K),IW=(CW>1 ? $clog2(CW) : 1);
     reg clk=0,rst_n=0,load_valid=0,load_bank=0,load_last=0,result_ready=0;
-    always #5 clk=~clk;
+    always #(CLOCK_HALF) clk=~clk;
     reg signed [7:0] load_data=0;
     reg [7:0] load_tag=0;
     wire load_ready,load_error,result_valid,result_bank,result_last,busy,compute_done;
@@ -139,12 +139,21 @@ module tb_memory_gemm #(
         // Abort both active computation and an already-valid stalled response.
         frame(0,0,250);
         frame(1,1,251);
+`ifdef PHYSICAL_NETLIST
+        wait(busy);
+`else
         wait(dut.tile_busy);
+`endif
         repeat(2) @(negedge clk);
         reset_all();
         frame(0,0,250);
+`ifdef PHYSICAL_NETLIST
+        wait(busy);
+        repeat(65) @(negedge clk);
+`else
         wait(dut.c_write_en);
         @(negedge clk);
+`endif
         reset_all();
         frame(0,0,250);
         wait(result_valid);
@@ -182,4 +191,9 @@ module tb_memory_gemm #(
         $finish;
     end
     initial begin #100_000_000; $fatal(1,"Memory GEMM global timeout"); end
+    string wave_path;
+    initial if ($value$plusargs("WAVE=%s",wave_path)) begin
+        $dumpfile(wave_path);
+        $dumpvars(0,tb_memory_gemm);
+    end
 endmodule

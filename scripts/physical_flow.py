@@ -67,9 +67,9 @@ def run_physical(run):
     if collected.returncode:
         raise RuntimeError("Could not collect the physical-flow outputs")
     result=run.directory/"results/sky130hd/int8_memory_gemm/base"
-    required=[result/"6_final.gds",result/"6_final.odb"]
+    required=[result/f"6_final.{suffix}" for suffix in ("gds","odb","v","sdc")]
     if not all(path.is_file() for path in required):
-        raise RuntimeError("OpenROAD did not produce both final GDS and ODB")
+        raise RuntimeError("OpenROAD did not produce all final GDS/ODB/netlist/SDC artifacts")
     spef=list(result.glob("*spef*"))
     if not spef:
         raise RuntimeError("No extracted-parasitic SPEF file was produced")

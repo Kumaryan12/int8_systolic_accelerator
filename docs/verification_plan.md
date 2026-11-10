@@ -26,9 +26,14 @@ The integer postprocessor contract is specified in `quantization.md`.
 | Code coverage | Verilator line/toggle/branch/expression reports and LCOV | `make sva` |
 | Mapped functionality | Clean SKY130 netlist, Liberty-derived functional models, advanced protocol/arithmetic tests | `make gate` |
 | Hardware tiling | Seven M,K,N shapes, tails, K partitions, range extremes and three reset positions | `make gemm` |
+| Memory/stream path | Two job slots, seven shapes, frame errors, stalls, reset cancellation and seven stream/RAM properties | `make memory`, `make memory-sva` |
+| Transfer-inclusive schedules | Serial and overlapped eight-job batches on identical interfaces | `make memory-bench` |
 | Output quantization | INT32 limits, ties, saturation, zero points, ReLU and large shifts; 1,900 Python/RTL vectors | `make inference` |
 | Layer numerical comparison | 21 exact integer results and bounded float-reference error | `make inference` |
 | Structure and timing | Yosys checks and typical-corner base-tile OpenSTA | `make synth`, `make sta` |
+| Routed default memory top | SKY130 placement/CTS/routing, extraction, router DRC and implementation LEC | `make physical` |
+| Routed functional gates and power | Eight jobs, actual cell models, VCD activity, 100 MHz extracted timing | `make postroute PHYSICAL_RUN=...` |
+| Trained model | All 1,797 official test images, 18,000 checked logits including padding | `make model` |
 
 Default seeds are 2026, 20261110 and 42. `make verify` rebuilds all functional
 checks from source and rejects missing tools, simulation failures, missing pass
@@ -48,5 +53,6 @@ Manual functional bins are a finite test plan, not exhaustive coverage closure.
 Verilator summaries include verification code and collapse repeated instance
 paths. Inspect uncovered points before claiming closure. Gate simulation uses
 functional library models without delays; it is not a formal equivalence proof
-or SDF simulation. Reset recovery/removal, physical parasitics, additional timing
-corners and power require further implementation work.
+or SDF simulation. The physical flow separately includes extracted wires,
+propagated clocks and workload-annotated power. Reset recovery/removal,
+additional corners, SRAM macros and foundry signoff remain open.
