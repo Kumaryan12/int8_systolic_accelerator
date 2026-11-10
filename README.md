@@ -27,6 +27,7 @@ See [toolchain setup](docs/toolchain.md) for versions and individual commands.
 | UVM | 208 completed transactions, 3,328 output checks and one reset abort per seed; busy-start rejection and recovery |
 | Hardware tiled GEMM | Seven shapes, three seeds, 777 completed GEMMs; padding and cross-tile accumulation |
 | Memory-backed GEMM | Two tagged job slots, three synchronous RAMs, narrow valid/ready streams; 168 checked GEMMs |
+| AXI4-Lite peripheral | Independent address/data channels, byte strobes, tagged result CSRs, IRQs and synchronized reset release; [contract](docs/axi_interface.md) |
 | Memory pipeline performance | Eight-job overlapped schedules take 23–35% fewer cycles than the same interface driven serially; [measured scope](docs/results/checkpoint_8.md) |
 | Integer postprocessing | 1,900 Python/RTL comparisons of rounding, saturation, zero points and ReLU |
 | RTL layer demo | 21 exact integer outputs; 48 clocks; max float-reference error 0.02152 |

@@ -174,6 +174,25 @@ class Regression:
         self.run("lcov_export", [self.tool("verilator_coverage"), "--write-info",
                  str(self.directory / "coverage.info")] + data)
 
+    def axi(self):
+        sources = MEMORY_RTL + ["rtl/reset_sync.sv", "rtl/axi_gemm.sv", "tb/tb_axi_gemm.sv"]
+        for m, k, n in ((1,1,1), (3,5,7), (4,4,4), (7,9,5), (8,8,8), (9,2,11), (2,17,3)):
+            label = f"axi_{m}x{k}x{n}"
+            executable = self.directory / label
+            self.run(f"{label}_build", [self.tool("iverilog"), "-g2012", "-s", "tb_axi_gemm",
+                     "-o", str(executable), f"-Ptb_axi_gemm.M={m}", f"-Ptb_axi_gemm.K={k}",
+                     f"-Ptb_axi_gemm.N={n}"] + sources)
+            for seed in self.args.seeds:
+                self.run(f"{label}_seed{seed}", [self.tool("vvp"), str(executable), f"+SEED={seed}"],
+                         [r"PASS: AXI GEMM", r"resets=7"])
+        obj = self.directory / "axi_sva_obj"
+        self.run("axi_sva_build", [self.tool("verilator"), "--binary", "--timing", "--assert",
+                 "-Wno-fatal", "--top-module", "tb_axi_gemm", "--Mdir", str(obj),
+                 "-j", str(self.args.jobs)] + sources, timeout=900)
+        for seed in self.args.seeds:
+            self.run(f"axi_sva_seed{seed}", [str(obj / "Vtb_axi_gemm"), f"+SEED={seed}"],
+                     [r"PASS: AXI GEMM", r"resets=7"])
+
     def memory(self):
         executable = self.directory / "ram_sim"
         self.run("ram_build", [self.tool("iverilog"), "-g2012", "-s", "tb_sync_dp_ram", "-o", str(executable),
@@ -343,6 +362,8 @@ class Regression:
             self.sva()
         if suite in ("gemm", "verify"):
             self.gemm()
+        if suite in ("axi", "verify"):
+            self.axi()
         if suite in ("memory", "verify"):
             self.memory()
         if suite in ("memory-sva", "verify"):
@@ -377,7 +398,7 @@ class Regression:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "memory", "memory-sva", "memory-bench", "memory-synth", "inference", "synth", "ppa", "gate", "architecture", "physical", "postroute", "model"], default="verify")
+    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "memory", "memory-sva", "memory-bench", "memory-synth", "inference", "synth", "ppa", "gate", "architecture", "physical", "postroute", "model", "axi"], default="verify")
     parser.add_argument("--physical-run")
     parser.add_argument("--seeds", type=int, nargs="+", default=[20261110])
     parser.add_argument("--jobs", type=int, default=2)

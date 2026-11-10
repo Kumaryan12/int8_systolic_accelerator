@@ -19,6 +19,7 @@ matrices, and the small quantized layer example.
 | 8 | Measured serial/overlapped schedules, stream assertions and the same layer through the memory-backed interface | [Results](results/checkpoint_8.md) |
 | 9 | Trained classifier evaluated entirely in RTL and a pinned routed SKY130 flow | [Results](results/checkpoint_9.md) |
 | 10 | Routed gate tests, extracted 100 MHz analysis, workload power and layout image | [Results](results/checkpoint_10.md) |
+| 11 | AXI4-Lite CSRs, independent channels, IRQs, byte strobes and qualified reset | [Results](results/checkpoint_11.md) |
 
 The project is stored in the private GitHub repository
 [Kumaryan12/int8_systolic_accelerator](https://github.com/Kumaryan12/int8_systolic_accelerator).
@@ -28,6 +29,7 @@ by Git; curated checkpoint summaries are committed.
 
 ## Current functional evidence
 
+- AXI peripheral: 84 GEMMs and 2,904 result checks across seven shapes/three seeds, plus five temporal assertions on the default shape.
 - 28 Python unit tests, including model training and physical/power report failure gates.
 - Baseline: 105 matrix pairs per seed, across three seeds.
 - Advanced RTL: 211/214/217/229 completions per seed for N=2/3/4/8,
@@ -57,7 +59,7 @@ by Git; curated checkpoint summaries are committed.
    and package/IO integration. Typical-corner routed estimates are complete;
    production signoff and silicon measurement are not.
 2. **Memory/bus integration:** map the retained 1R1W memories to an actual SRAM
-   macro or FPGA BRAM, and choose an AXI/DMA adapter for a concrete system.
+   macro or FPGA BRAM, and integrate the verified AXI4-Lite peripheral or a DMA adapter into a concrete system.
    The portable stream, ownership, buffering and cycle benchmarks are complete.
 3. **Verification closure:** review remaining uncovered expressions/branches,
    set target-specific coverage goals and consider a full RTL-to-layout formal

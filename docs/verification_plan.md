@@ -56,3 +56,9 @@ functional library models without delays; it is not a formal equivalence proof
 or SDF simulation. The physical flow separately includes extracted wires,
 propagated clocks and workload-annotated power. Reset recovery/removal,
 additional corners, SRAM macros and foundry signoff remain open.
+
+`make axi` exercises seven matrix shapes at three seeds through the AXI4-Lite
+register interface, seven reset situations per run, all AW/W arrival orders,
+B/R stalls, byte strobes, SLVERR, counters, metadata and IRQ/W1C. Five temporal
+response/ownership properties run under Verilator on the default shape. The
+AXI suite is included in `make verify`.
