@@ -34,6 +34,8 @@ make sva
 make verify SEEDS="2026 20261110 42" RANDOM_CASES=200 JOBS=2
 make synth
 make sta
+make gate
+make architecture
 ```
 
 Default seeds are `2026 20261110 42`. Advanced RTL tests run N=2,3,4,8;
@@ -55,8 +57,11 @@ STA="$HOME/eda-tools/OpenSTA/build/sta" make sta
 ```
 
 `make synth` regenerates generic, SKY130 baseline, and clean timing-driven
-netlists in the new run directory. `make sta` performs those builds and runs
-OpenSTA on the newly generated clean netlist. Its report is still pre-layout,
+netlists in the new run directory. `make sta` performs those builds, generates
+functional cell models from Liberty, runs the advanced coverage regression on
+the clean mapped netlist, and runs OpenSTA. `make gate` omits timing analysis.
+`make architecture` maps N=2,3,4,8 and records cell counts and areas in JSON.
+The timing report is still pre-layout,
 typical-corner analysis with ideal clocks; it is not physical timing signoff.
 
 The initial local validation uses Python 3.14.7, Icarus 13.0, Verilator 5.054,

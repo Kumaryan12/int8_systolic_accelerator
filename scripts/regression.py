@@ -143,17 +143,83 @@ class Regression:
     def synthesis(self):
         for variant in ("generic", "sky130_map", "sky130_timing_clean"):
             original = (ROOT / f"synth/{variant}.ys").read_text()
-            script = re.sub(r"build/([\w.]+)", lambda match: f'"{self.directory / match[1]}"', original)
+            script = re.sub(r"(?<![/\w])build/([\w.]+)", lambda match: f'"{self.directory / match[1]}"', original)
             path = self.directory / f"{variant}.ys"
             path.write_text(script)
-            self.run(f"synth_{variant}", [self.tool("yosys"), "-Q", "-s", str(path)],
+            log = self.run(f"synth_{variant}", [self.tool("yosys"), "-Q", "-s", str(path)],
                      [r"Found and reported 0 problems", r"End of script"])
+            name = {"generic": "systolic_netlist", "sky130_map": "systolic_sky130",
+                    "sky130_timing_clean": "systolic_sky130_clean"}[variant]
+            netlist = json.loads((self.directory / f"{name}.json").read_text())
+            area = re.search(r"Chip area for module.*: ([\d.]+)", log)
+            self.report.setdefault("synthesis", {})[variant] = {
+                "cells": len(netlist["modules"]["systolic_array"]["cells"]),
+                "cell_area_um2": float(area[1]) if area else None,
+            }
+            self.save()
+
+    def gate(self):
+        models = self.directory / "sky130_models.v"
+        script = self.directory / "gate_models.ys"
+        script.write_text("read_liberty -ignore_miss_func lib/sky130_fd_sc_hd__tt_025C_1v80.lib\n"
+                          f'write_verilog -noattr "{models}"\n')
+        self.run("gate_models", [self.tool("yosys"), "-Q", "-s", str(script)], [r"End of script"])
+        original = (self.directory / "systolic_sky130_clean.v").read_text()
+        renamed, count = re.subn(r"\bmodule systolic_array\(", "module systolic_array_gate(", original)
+        if count != 1:
+            raise RuntimeError("Cannot identify mapped top module for gate simulation")
+        netlist = self.directory / "gate_netlist.v"
+        netlist.write_text(renamed)
+        executable = self.directory / "gate_sim"
+        self.run("gate_build", [self.tool("iverilog"), "-g2012", "-s", "tb_coverage", "-o", str(executable),
+                 f"-Ptb_coverage.RANDOM_CASES={self.args.random_cases}",
+                 str(models), str(netlist), "tb/gate_adapter.sv"] + ADVANCED + ["tb/tb_coverage.sv"])
+        for seed in self.args.seeds:
+            self.run(f"gate_seed{seed}", [self.tool("vvp"), str(executable), f"+SEED={seed}"],
+                     [r"PASS: Advanced verification completed", r"Bins covered : 14 / 14", r"Sign-pair bins : 9 / 9"])
+
+    def architecture(self):
+        results = []
+        template = (ROOT / "synth/sky130_timing_clean.ys").read_text()
+        for size in self.args.sizes:
+            directory = self.directory / f"n{size}"
+            directory.mkdir()
+            wrapper = directory / "architecture_top.sv"
+            data_bits = size*size*8
+            acc_bits = size*size*(16+(size-1).bit_length())
+            wrapper.write_text(f"module architecture_top(input clk, rst_n, start, "
+                               f"input [{data_bits-1}:0] a_matrix, b_matrix, output busy, done, "
+                               f"output [{acc_bits-1}:0] c_matrix);\n"
+                               f"systolic_array #(.N({size})) tile (.*);\nendmodule\n")
+            script = template.replace("hierarchy -check", f'read_verilog -sv "{wrapper}"\nhierarchy -check')
+            script = script.replace("-top systolic_array", "-top architecture_top")
+            script = re.sub(r"(?<![/\w])build/([\w.]+)", lambda match: f'"{directory / match[1]}"', script)
+            path = directory / "synth.ys"
+            path.write_text(script)
+            log = self.run(f"architecture_n{size}", [self.tool("yosys"), "-Q", "-s", str(path)], [r"End of script"])
+            netlist = json.loads((directory / "systolic_sky130_clean.json").read_text())
+            area = re.search(r"Chip area for module.*: ([\d.]+)", log)
+            results.append({"N": size, "MAC_units": size*size, "compute_cycles": 3*size-2,
+                            "accumulator_bits": 16+(size-1).bit_length(),
+                            "cells": len(netlist["modules"]["architecture_top"]["cells"]),
+                            "cell_area_um2": float(area[1])})
+        self.report["architecture"] = results
+        self.save()
+        (self.directory / "architecture.json").write_text(json.dumps(results, indent=2) + "\n")
 
     def timing(self):
         env = dict(os.environ, NETLIST_FILE=str(self.directory / "systolic_sky130_clean.v"),
                    REPORT_DIR=str(self.directory))
-        self.run("sta", [self.tool("sta"), "-exit", "timing/run_sta_clean.tcl"],
+        log = self.run("sta", [self.tool("sta"), "-exit", "timing/run_sta_clean.tcl"],
                  [r"CLEAN NETLIST STA COMPLETE", r"wns max 0\.000", r"wns min 0\.000"], env=env)
+        self.report["timing"] = {
+            "setup_slack_ns": float(re.search(r"worst slack max ([-\d.]+)", log)[1]),
+            "hold_slack_ns": float(re.search(r"worst slack min ([-\d.]+)", log)[1]),
+            "period_min_ns": float(re.search(r"period_min = ([\d.]+)", log)[1]),
+            "estimated_fmax_MHz": float(re.search(r"fmax = ([\d.]+)", log)[1]),
+            "scope": "pre-layout SKY130HD TT 25C 1.8V; ideal clocks; no extracted wires",
+        }
+        self.save()
 
     def execute(self):
         suite = self.args.suite
@@ -167,15 +233,19 @@ class Regression:
             self.uvm()
         if suite in ("sva", "verify"):
             self.sva()
-        if suite in ("synth", "ppa"):
+        if suite in ("synth", "ppa", "gate"):
             self.synthesis()
+        if suite in ("ppa", "gate"):
+            self.gate()
         if suite == "ppa":
             self.timing()
+        if suite == "architecture":
+            self.architecture()
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "synth", "ppa"], default="verify")
+    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "synth", "ppa", "gate", "architecture"], default="verify")
     parser.add_argument("--seeds", type=int, nargs="+", default=[20261110])
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--sizes", type=int, nargs="+", default=[2, 3, 4, 8])
