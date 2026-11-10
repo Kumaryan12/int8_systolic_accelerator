@@ -36,7 +36,8 @@ by Git; curated checkpoint summaries are committed.
 
 - AXI peripheral: 84 GEMMs and 2,904 result checks across seven shapes/three seeds, plus five temporal assertions on the default shape.
 - Hard SRAM: 288 Icarus GEMMs and 10,152 result checks across eight shapes/three seeds, plus stream SVA and boundary/negative tests. Exactly three macros in default synthesis; physical macro integration remains open.
-- 38 Python unit tests, including model training and physical/power report failure gates.
+- 44 Python unit tests, including native signed-INT8 correctness/false-pass controls,
+  paired accuracy accounting, model training and physical/power report failure gates.
 - Baseline: 105 matrix pairs per seed, across three seeds.
 - Advanced RTL: 211/214/217/229 completions per seed for N=2/3/4/8,
   with 4/7/10/22 reset-abort positions and a recovery after each abort.
@@ -65,6 +66,14 @@ by Git; curated checkpoint summaries are committed.
   recovery/removal and synchronizer setup. Worst setup/hold: +0.853111/+0.092626 ns.
 
 ## Remaining target-specific work
+
+The [comparison/evaluation checkpoint](results/checkpoint_16.md) adds a native
+M5 NEON/scalar benchmark with exact shared RTL operands, N=2/3/4/8 pre-layout
+area/timing/throughput plots, and paired float/INT8 evaluation for both a linear
+model and a 1,210-parameter ReLU MLP. All 1,797 test images are checked through
+every layer. The M5 is faster on these small jobs. CPU energy is unavailable;
+a separate trace-inclusive ASIC estimate is 587.11 pJ/useful MAC at TT/100 MHz.
+FPGA execution remains blocked on board access.
 
 1. **Physical signoff:** extend the nine tested public-model cell-PVT/RC combinations with
    reset pulse/MTBF characterization, foundry DRC/LVS, power-integrity/thermal checks

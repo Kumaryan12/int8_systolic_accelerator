@@ -1,0 +1,16 @@
+{
+  "estimated_pj_per_useful_mac": 587.110678452381,
+  "estimated_trace_energy_j": 4.931729699e-07,
+  "estimated_power_w": 0.02769079,
+  "trace_duration_seconds": 1.781e-05,
+  "completed_jobs": 8,
+  "shape_M_K_N": [
+    3,
+    5,
+    7
+  ],
+  "useful_macs": 840,
+  "trace_sha256": "2fc648b6e3778c5a58ff65e8640419bcff61d27b3a76a0a6a396d4a43437fc82",
+  "source_run": "run_20261110T102256Z_xbi81a7e",
+  "scope": "SKY130 standard-cell streaming memory top, TT 25C 1.8V at 100MHz; OpenSTA workload power times entire zero-delay gate VCD duration, including reset/protocol/idle overhead; not silicon measurement, AXI power, or a matched CPU energy comparison"
+}

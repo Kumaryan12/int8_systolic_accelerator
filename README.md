@@ -1,11 +1,28 @@
 # INT8 Systolic Array Accelerator
 
-A SystemVerilog AI-hardware prototype: a systolic tile, memory-backed GEMM
-with two job slots, integer output scaling, a trained digit-classifier demo,
-and routed SKY130 implementations with extracted timing and reset checks.
-The streaming top also has an activity-based power estimate.
+A reproducible INT8 AI-inference hardware project with a 16-MAC systolic
+array, tiled GEMM, two-slot memories, AXI4-Lite, and integer postprocessing.
+Includes native Apple M5 NEON comparisons, two trained digit models checked
+in RTL, and routed SKY130 implementations.
 
 [![Verification](https://github.com/Kumaryan12/int8_systolic_accelerator/actions/workflows/verify.yml/badge.svg)](https://github.com/Kumaryan12/int8_systolic_accelerator/actions/workflows/verify.yml)
+
+| Headline result | Number and scope |
+|---|---|
+| Default array | 4×4 signed INT8, **16 MACs** |
+| Digit accuracy, float → INT8 | Linear **94.9917% → 95.0473%**; ReLU MLP **95.6594% → 95.7707%**; 1,797 held-out images per model, every layer checked in RTL |
+| Physical timing | **50 MHz**, all nine tested cell-PVT/interconnect combinations; default standard-cell AXI top |
+| Physical size | **21,653 cells**, **211,912 µm²** summed cell area; zero detailed-router DRC errors |
+| CPU baseline | M5 NEON **25.39 GMAC/s** for prepacked 4×65×10 GEMM; **6.54 GMAC/s** including per-call weight packing and requantization |
+| Array-size sweep | N=2,3,4,8: mapped area, pre-layout timing and useful-throughput plot below |
+| Verification | **232-step regression and 44 Python tests** passed locally; source-built verification in GitHub Actions |
+
+The CPU numbers are measured; accelerator workload times are cycle-based
+estimates. This small accelerator is slower than the M5 on the tested jobs.
+Physical timing applies to the default AXI configuration, not the classifier.
+No FPGA board or fabricated-chip measurements are available.
+[Comparison results and scope](docs/results/checkpoint_16.md) ·
+[Reproduction methodology](docs/performance_methodology.md)
 
 ```sh
 git clone --recurse-submodules https://github.com/Kumaryan12/int8_systolic_accelerator.git
@@ -34,14 +51,16 @@ See [toolchain setup](docs/toolchain.md) for versions and individual commands.
 | Integer postprocessing | 1,900 Python/RTL comparisons of rounding, saturation, zero points and ReLU |
 | RTL layer demo | 21 exact integer outputs; 48 clocks; max float-reference error 0.02152 |
 | Trained classifier | All 1,797 official UCI test images run through RTL; 95.05% INT8-logit accuracy |
+| Second model and accuracy loss | 1,210-parameter 64→16→10 ReLU MLP; both layers checked on all test images; float-minus-INT8 accuracy difference −0.1113 percentage points |
 | Routed implementation | Default memory top: SKY130 GDS/SPEF, zero router DRC errors; typical 100 MHz, three cell PVT corners pass at 50 MHz with fixed extracted RC ([results](docs/results/checkpoint_12.md)) |
 
 ## Architecture and recorded waveform
 
 A travels right and B travels down through the array; each processing element
 keeps its own output sum. The hardware GEMM scheduler feeds zero-padded tiles
-and accumulates partial results into a wider output matrix. Input/output ports
-are packed row-major buses, with one outstanding job.
+and accumulates partial results into a wider output matrix. The packed wrapper
+accepts one job at a time; the memory-backed successor uses narrow streams
+and two job slots to overlap transfers with computation.
 
 ![Recorded tiled inference control waveform](docs/assets/inference.svg)
 
@@ -60,6 +79,9 @@ make memory-synth              # Check inferred RAM ports and generic fallback
 make gate                      # Rebuild and test the mapped base-tile netlist
 make sta                       # Synthesis, gate tests and OpenSTA (STA on PATH)
 make architecture              # N=2,3,4,8 mapped cell-count/area sweep
+make design-space              # Same sweep plus per-size OpenSTA timing/throughput
+make cpu-bench                 # Native scalar/NEON timing + exact shared RTL workloads
+make accuracy                  # Float/INT8 paired accuracy for linear and ReLU MLP
 make model                     # Train/evaluate and run every official test image in RTL
 make physical                  # Pinned Docker SKY130 route/extraction flow
 make postroute PHYSICAL_RUN="build/run_<physical-run>"  # Routed gates, timing, power, image
@@ -69,6 +91,21 @@ Every run creates `build/run_<UTC timestamp>_<unique suffix>/`. Its summary
 records source hashes, Git state, UVM revision, seeds, tool versions, commands,
 execution times and failures. Build products are ignored by Git. GitHub Actions
 runs the functional regression on Ubuntu and archives evidence.
+
+## Design-space and model evaluation
+
+![Mapped area, pre-layout timing and useful throughput versus array size](docs/assets/design_space.svg)
+
+The sweep uses a common SKY130HD TT mapping flow. Useful throughput includes
+the base tile's capture/restart spacing; it excludes host transfer time.
+Timing is pre-layout, with ideal clocks and no extracted wires. The projected
+clock limits in this plot are separate from routed multi-corner timing.
+
+Both digit models use the official training/test split, fixed training seeds
+and training-only scale calibration. The small INT8 accuracy gains correspond
+to just one and two test images; they do not establish a general benefit from
+quantization. Detailed paired results are in the
+[evaluation report](docs/results/checkpoint_16.md).
 
 ## Implementation results and scope
 

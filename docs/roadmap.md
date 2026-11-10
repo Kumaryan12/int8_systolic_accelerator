@@ -10,6 +10,8 @@
 - [x] Procedural and temporal assertions, defined functional bins and code-coverage exports.
 - [x] Generic and SKY130 synthesis, mapped functional tests and pre-layout timing.
 - [x] Cell-count/area comparisons across array sizes.
+- [x] Per-size pre-layout timing and useful-throughput plots for N=2,3,4,8.
+- [x] Native M5 NEON/scalar benchmarks using the same INT8 operands and outputs as RTL.
 - [x] Hardware tiled GEMM with rectangular tails and wider partial-sum accumulation.
 - [x] Integer rounding, requantization, saturation and ReLU in hardware.
 - [x] Small quantized RTL layer with Python comparisons and numerical-error report.
@@ -46,7 +48,12 @@
 - [x] Implement classifier bias through a constant input feature in the RTL MACs.
 - [ ] Add per-channel quantization if a larger target model requires it.
 - [x] Evaluate all 1,797 official test images in RTL and report task accuracy.
+- [x] Paired float/INT8 evaluation for linear and two-layer ReLU models, with every layer checked in RTL.
 - [ ] Measure performance on an actual FPGA or fabricated chip.
+
+FPGA execution is blocked on access to a board; see the
+[bring-up requirements](fpga_bringup.md). CPU power sampling is unavailable,
+so a matched CPU/ASIC energy-efficiency comparison remains open.
 
 Keep base-tile pre-layout numbers, default memory-top routed estimates, and
 classifier task accuracy distinct. Workload power is a tool estimate; no

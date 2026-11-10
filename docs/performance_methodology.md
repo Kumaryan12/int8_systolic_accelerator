@@ -48,6 +48,8 @@ The physical 50 MHz result elsewhere belongs to the default standard-cell
 AXI peripheral. Packed-core comparison excludes host/AXI/RAM transfer time;
 it must not be called end-to-end application speedup. CPU warm-cache execution
 and an ASIC time estimate have different physical scopes.
+The CPU comparison keeps the hardware tile at 4×4; the design-space experiment
+below varies the base array size. Matrix dimensions and array size are distinct.
 
 The current tiny accelerator does not beat this M5 baseline on these cases.
 Report that outcome along with the scopes; small arrays, padding and repeated

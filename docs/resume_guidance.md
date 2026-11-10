@@ -1,38 +1,48 @@
 # Evidence-based resume wording
 
-**INT8 Systolic Matrix Accelerator** | SystemVerilog, UVM, Python, Yosys, OpenSTA
+**INT8 AI Inference Accelerator** | SystemVerilog, Python, UVM, AXI4-Lite, SKY130, OpenROAD
 
-- Implemented a 4×4 signed-INT8 systolic tile with 16 MAC units and 18-bit
-  accumulators, then added a hardware scheduler for rectangular tiled GEMM,
-  zero-padded tails and wider cross-tile accumulation.
-- Built a seeded RTL/UVM regression with six temporal assertions, reset-abort
-  recovery and a scoreboard; validated 208 completed transactions and 3,328
-  outputs per UVM seed, plus 777 tiled GEMMs across seven shapes/three seeds.
-- Mapped the base tile to SKY130HD and checked mapped-netlist functionality;
-  recorded 9,727 cells and 80,737 µm² summed cell area, with positive pre-layout
-  slack at a 100 MHz target under typical-corner ideal-clock assumptions.
-- Verified hardware requantization/ReLU against 1,900 integer vectors and a
-  Python-referenced layer demo; automated source builds and evidence capture
-  through GitHub Actions.
+Choose three bullets that reflect work you can explain and reproduce:
 
-- Built a two-slot synchronous-memory host interface; reduced the default
-  generic implementation from 134,088 to 20,025 cells, with independently
-  measured transfer-overlap cycle improvements on the same interface.
-- Routed the default memory-backed top in SKY130HD with typical-corner extracted 100 MHz
-  setup/hold slack of +1.061/+0.139 ns and zero detailed-router DRC errors;
-  estimated 27.69 mW from an annotated routed-netlist activity trace at TT.
-- Trained a 650-parameter digit classifier and evaluated all 1,797 official
-  held-out test images in RTL, matching all integer logits and achieving
-  95.05% INT8 classification accuracy.
+- Implemented a parameterized INT8 systolic accelerator with a default 4×4
+  array of 16 MAC units, tiled matrix multiplication, integer requantization,
+  two job buffers and an AXI4-Lite interface.
+- Evaluated linear and two-layer ReLU digit classifiers on all 1,797 official
+  test images, achieving 95.05% and 95.77% INT8 accuracy; verified every layer
+  against exact integer reference results in RTL.
+- Completed SKY130 placement and routing for the default standard-cell AXI
+  peripheral, with 21,653 cells, zero detailed-router DRC errors and 50 MHz
+  timing closure across nine tested cell/interconnect combinations.
+- Built a shared CPU/RTL workload corpus and single-threaded M5 NEON baseline;
+  measured 25.39 GMAC/s for prepacked 4×65×10 GEMM and 6.54 GMAC/s including
+  per-call weight packing and integer postprocessing.
+- Automated a 232-step regression with 44 Python tests, seeded RTL/UVM
+  scoreboards and assertions, and GitHub Actions source builds.
 
-Select two or three bullets for a resume. Keep parameterizations distinct:
-base-tile mapping, default memory-top routing and classifier accuracy are
-separate results. Routed power/frequency are tool estimates, not silicon
-measurements. Three tested cell PVT corners close at 50 MHz with fixed extracted
-RC; 100 MHz fails at SS. RC corners, physical reset release and foundry signoff
-remain open.
+Use the CPU benchmark bullet when discussing performance methodology or an
+inference-engine role. The CPU is faster on these small jobs; no accelerator
+speedup or energy-efficiency advantage is established.
 
-- Built and routed an AXI4-Lite GEMM peripheral with independent channels,
-  byte strobes, IRQs and synchronized reset release; passed routed host tests
-  and 50 MHz setup/hold/recovery/removal at three cell PVTs using fixed RC.
-  This is an open-PDK implementation result, not measured silicon or full signoff.
+## Scope to explain in an interview
+
+The linear model has 650 parameters; the ReLU MLP has 1,210. Both use the same
+official optdigits split and train-only quantization calibration. Float64
+accuracy is 94.9917% and 95.6594%, respectively. The small INT8 gains represent
+one and two images on a fixed test split, not a general quantization benefit.
+
+Classifier accuracy, base-tile pre-layout sweeps and the routed default AXI
+configuration are separate results. The complete classifier has not been
+physically timed. CPU measurements use warm repeated operands and exclude
+allocation, float input quantization and argmax.
+
+The separate 587.11 pJ/useful-MAC estimate belongs to an older streaming-memory
+trace at TT/100 MHz and includes reset/protocol/idle overhead. CPU energy is
+unavailable. Do not claim a matched energy comparison.
+
+No FPGA/ASIC silicon measurement, tapeout, full foundry DRC/LVS signoff or
+physically integrated hard-SRAM result is claimed. The hard-SRAM backend has
+functional and synthesis-binding evidence only.
+
+Sources: [comparison report](results/checkpoint_16.md),
+[nine-corner timing](results/checkpoint_15.md),
+[methodology](performance_methodology.md).
