@@ -62,3 +62,9 @@ register interface, seven reset situations per run, all AW/W arrival orders,
 B/R stalls, byte strobes, SLVERR, counters, metadata and IRQ/W1C. Five temporal
 response/ownership properties run under Verilator on the default shape. The
 AXI suite is included in `make verify`.
+
+`make pvt PHYSICAL_RUN=...` reuses validated routed artifacts at TT/SS/FF and
+10/20 ns. A successful diagnostic run can contain timing failures; inspect
+`timing_closed` or add `PVT_ARGS="--pvt-periods 20 --require-timing-closure"`
+for a strict pass/fail gate. Libraries are pinned/checksummed and downloaded
+into an ignored cache. RC and raw-reset exceptions remain unchanged.

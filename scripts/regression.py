@@ -4,6 +4,7 @@ import argparse
 import hashlib
 from datetime import datetime, timezone
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -389,6 +390,11 @@ class Regression:
         if suite=="model":
             from digit_model import run_model
             run_model(self)
+        if suite=="pvt":
+            if not self.args.physical_run:
+                raise RuntimeError("Set --physical-run to a successful physical run directory")
+            from pvt import run_pvt
+            run_pvt(self)
         if suite=="postroute":
             if not self.args.physical_run:
                 raise RuntimeError("Set --physical-run to a successful physical run directory")
@@ -398,13 +404,17 @@ class Regression:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "memory", "memory-sva", "memory-bench", "memory-synth", "inference", "synth", "ppa", "gate", "architecture", "physical", "postroute", "model", "axi"], default="verify")
+    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "memory", "memory-sva", "memory-bench", "memory-synth", "inference", "synth", "ppa", "gate", "architecture", "physical", "postroute", "model", "axi", "pvt"], default="verify")
     parser.add_argument("--physical-run")
+    parser.add_argument("--require-timing-closure", action="store_true")
+    parser.add_argument("--pvt-periods", type=float, nargs="+", default=[10.0,20.0])
     parser.add_argument("--seeds", type=int, nargs="+", default=[20261110])
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--sizes", type=int, nargs="+", default=[2, 3, 4, 8])
     parser.add_argument("--random-cases", type=int, default=200)
     args = parser.parse_args()
+    if any(not math.isfinite(period) or period<=0 for period in args.pvt_periods):
+        parser.error("PVT clock periods must be positive and finite")
     if args.jobs < 1 or args.random_cases < 0 or any(size < 2 for size in args.sizes) or any(not 0 < seed < 2**32 for seed in args.seeds):
         parser.error("jobs must be positive, random cases nonnegative, seeds in [1, 2**32-1]")
     run = Regression(args)

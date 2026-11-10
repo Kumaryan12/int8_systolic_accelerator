@@ -1,0 +1,75 @@
+{
+  "physical_run": "build/run_20261110T100446Z_7e1u3q9h",
+  "design": "memory_gemm",
+  "corners": [
+    {
+      "corner": "tt_025C_1v80",
+      "period_ns": 10.0,
+      "setup_slack_ns": 1.061157,
+      "hold_slack_ns": 0.139495,
+      "timing_closed": true
+    },
+    {
+      "corner": "tt_025C_1v80",
+      "period_ns": 20.0,
+      "setup_slack_ns": 11.061157,
+      "hold_slack_ns": 0.139495,
+      "timing_closed": true
+    },
+    {
+      "corner": "ss_100C_1v60",
+      "period_ns": 10.0,
+      "setup_slack_ns": -8.143339,
+      "hold_slack_ns": 0.434713,
+      "timing_closed": false
+    },
+    {
+      "corner": "ss_100C_1v60",
+      "period_ns": 20.0,
+      "setup_slack_ns": 1.856661,
+      "hold_slack_ns": 0.434713,
+      "timing_closed": true
+    },
+    {
+      "corner": "ff_n40C_1v95",
+      "period_ns": 10.0,
+      "setup_slack_ns": 4.406778,
+      "hold_slack_ns": 0.090783,
+      "timing_closed": true
+    },
+    {
+      "corner": "ff_n40C_1v95",
+      "period_ns": 20.0,
+      "setup_slack_ns": 14.406778,
+      "hold_slack_ns": 0.090783,
+      "timing_closed": true
+    }
+  ],
+  "all_timing_closed": false,
+  "scope": "three cell PVT corners; same routed ODB and extracted RC; propagated clocks; raw reset excepted; no RC-corner/foundry signoff",
+  "libraries": {
+    "repository": "https://github.com/efabless/skywater-pdk-libs-sky130_fd_sc_hd",
+    "revision": "5a42fd01a0eeb2338340438443c7062e198d97a4",
+    "license": "Apache-2.0; see lib/LICENSE.sky130",
+    "tt_025C_1v80": {
+      "source": "pinned ORFS image /OpenROAD-flow-scripts/flow/platforms/sky130hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib",
+      "sha256": "ec0e1067a35c8bf20b11e58d1e8ac53326067e4dac84a125cc1b917a3518d0d9"
+    },
+    "downloads": {
+      "ss_100C_1v60": {
+        "url": "https://raw.githubusercontent.com/efabless/skywater-pdk-libs-sky130_fd_sc_hd/5a42fd01a0eeb2338340438443c7062e198d97a4/timing/sky130_fd_sc_hd__ss_100C_1v60.lib",
+        "sha256": "9b24f0db3967ac67b4cae1f74bb480fd47922d18d0ed577e3c121739b412c361"
+      },
+      "ff_n40C_1v95": {
+        "url": "https://raw.githubusercontent.com/efabless/skywater-pdk-libs-sky130_fd_sc_hd/5a42fd01a0eeb2338340438443c7062e198d97a4/timing/sky130_fd_sc_hd__ff_n40C_1v95.lib",
+        "sha256": "fb61d91c55a7f85b1989e8149d040b13ba5e7f5478f5bf0c3c16c5da30720139"
+      }
+    }
+  },
+  "image": "openroad/orfs@sha256:76fdfc62aa2ad5fdc373c38645d02be00ad346e7a1a65dff826a7a9f75eadf7d",
+  "physical_input_sha256": {
+    "6_final.odb": "b72c664cafa9e8c08bad31762c70d41addedf7f9efb467d6323f24a5d6e5a8fa",
+    "6_final.spef": "19262618ea56beac918855c3b0dee42a8017ba94ee848d17b50181a3cb5d0321",
+    "6_final.sdc": "38d764f138830011f6d05f4d9cdfbeaa78a5479a6de49d1a7bd25dd76c271fa7"
+  }
+}

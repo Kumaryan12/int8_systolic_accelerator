@@ -83,3 +83,13 @@ reports below 95% measured-pin coverage; this trace reaches 99.9963%.
 
 The rendering shows met2–met5 from the actual generated GDS for readability.
 Large GDS/ODB/SPEF/VCD files remain in the run artifacts rather than Git.
+
+## Cell PVT sweep
+
+`make pvt PHYSICAL_RUN=build/run_...` analyzes the same checksummed routed
+ODB/SPEF at TT/SS/FF, at 10 and 20 ns. The diagnostic suite reports negative
+slacks without failing; its `all_timing_closed` field states closure. Add
+`PVT_ARGS="--pvt-periods 20 --require-timing-closure"` for a strict gate. The
+manual physical CI workflow gates all three at 50 MHz. SS/FF downloads are
+pinned and checked; caches are ignored. This checks cell PVT variation with
+unchanged RC and reset exceptions, not full signoff. See [results](../docs/results/checkpoint_12.md).

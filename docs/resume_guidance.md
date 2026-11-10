@@ -18,7 +18,7 @@
 - Built a two-slot synchronous-memory host interface; reduced the default
   generic implementation from 134,088 to 20,025 cells, with independently
   measured transfer-overlap cycle improvements on the same interface.
-- Routed the default memory-backed top in SKY130HD with extracted 100 MHz
+- Routed the default memory-backed top in SKY130HD with typical-corner extracted 100 MHz
   setup/hold slack of +1.061/+0.139 ns and zero detailed-router DRC errors;
   estimated 27.69 mW from an annotated routed-netlist activity trace at TT.
 - Trained a 650-parameter digit classifier and evaluated all 1,797 official
@@ -28,4 +28,6 @@
 Select two or three bullets for a resume. Keep parameterizations distinct:
 base-tile mapping, default memory-top routing and classifier accuracy are
 separate results. Routed power/frequency are tool estimates, not silicon
-measurements; reset release, additional corners and foundry signoff remain open.
+measurements. Three tested cell PVT corners close at 50 MHz with fixed extracted
+RC; 100 MHz fails at SS. RC corners, physical reset release and foundry signoff
+remain open.

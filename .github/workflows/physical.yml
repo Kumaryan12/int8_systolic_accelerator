@@ -12,6 +12,21 @@ jobs:
         with:
           python-version: '3.12'
       - run: make physical
+      - name: Gate three cell PVT corners at 50 MHz
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          import subprocess
+          candidates = [p.parent for p in Path('build').glob('run_*/summary.json')
+                        if (r := json.loads(p.read_text())).get('suite') == 'physical'
+                        and r.get('status') == 'PASS']
+          if len(candidates) != 1:
+              raise SystemExit('Expected exactly one successful physical run')
+          subprocess.run(['python3', 'scripts/regression.py', '--suite', 'pvt',
+                          '--physical-run', str(candidates[0]), '--pvt-periods', '20',
+                          '--require-timing-closure'], check=True)
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -19,6 +34,8 @@ jobs:
           path: |
             build/run_*/summary.json
             build/run_*/physical_metrics.json
+            build/run_*/pvt_metrics.json
+            build/run_*/*/*.rpt
             build/run_*/*.log
             build/run_*/logs/
             build/run_*/reports/

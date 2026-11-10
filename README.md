@@ -32,7 +32,7 @@ See [toolchain setup](docs/toolchain.md) for versions and individual commands.
 | Integer postprocessing | 1,900 Python/RTL comparisons of rounding, saturation, zero points and ReLU |
 | RTL layer demo | 21 exact integer outputs; 48 clocks; max float-reference error 0.02152 |
 | Trained classifier | All 1,797 official UCI test images run through RTL; 95.05% INT8-logit accuracy |
-| Routed implementation | Default memory-backed top: SKY130 GDS/SPEF, zero router DRC errors, +1.061 ns setup slack at 100 MHz |
+| Routed implementation | Default memory top: SKY130 GDS/SPEF, zero router DRC errors; typical 100 MHz, three cell PVT corners pass at 50 MHz with fixed extracted RC ([results](docs/results/checkpoint_12.md)) |
 
 ## Architecture and recorded waveform
 
@@ -75,7 +75,9 @@ The default **memory-backed** 3×5 by 5×7 top has a routed SKY130HD result:
 analysis at **100 MHz** reports **+1.061157 ns setup** and **+0.139495 ns hold**
 slack. An eight-job routed-netlist switching trace gives **27.69079 mW** estimated
 power, with 53,754 annotated pins and two unannotated pins. These estimates use
-TT, 25 C, 1.8 V; reset release is explicitly excepted.
+TT, 25 C, 1.8 V; reset release is explicitly excepted. A subsequent cell-PVT
+sweep passes setup/hold at 50 MHz for TT/SS/FF using the same extracted RC;
+100 MHz fails the SS corner ([full table](docs/results/checkpoint_12.md)).
 
 ![Routed SKY130 upper-metal overview](docs/assets/routed_sky130.png)
 
@@ -83,8 +85,8 @@ TT, 25 C, 1.8 V; reset release is explicitly excepted.
 [Trained model and dataset attribution](examples/digits/README.md) ·
 [Current status](docs/project_status.md) · [Roadmap](docs/roadmap.md)
 
-The memory uses a standard-cell fallback; hard SRAM/BRAM and AXI/DMA integration
-remain target-specific work. Additional PVT corners, reset recovery/removal,
+The memory uses a standard-cell fallback. The AXI4-Lite peripheral is verified
+in RTL; hard SRAM/BRAM, processor/DMA integration, RC corners and reset recovery/removal,
 foundry DRC/LVS and real-device measurements remain open. Zero router errors
 and typical-corner timing are not production signoff. Historical base-tile
 pre-layout numbers are kept in the [checkpoint reports](docs/results/); they

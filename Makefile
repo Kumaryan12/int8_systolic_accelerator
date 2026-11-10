@@ -16,9 +16,12 @@ python-test:
 sim advanced coverage uvm sva gemm memory memory-sva memory-bench memory-synth inference gate architecture physical model axi:
 	$(RUN) --suite $@
 
-.PHONY: postroute
+.PHONY: postroute pvt
 postroute:
-	$(RUN) --suite postroute --physical-run "$(PHYSICAL_RUN)"
+	$(RUN) --suite $@ --physical-run "$(PHYSICAL_RUN)"
+
+pvt:
+	$(RUN) --suite pvt --physical-run "$(PHYSICAL_RUN)" $(PVT_ARGS)
 
 synth:
 	$(RUN) --suite synth
