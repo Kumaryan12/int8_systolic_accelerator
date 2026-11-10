@@ -21,6 +21,13 @@ physical:
 	$(RUN) --suite physical --physical-design $(PHYSICAL_DESIGN)
 
 .PHONY: postroute pvt rcx
+.PHONY: design-space cpu-bench accuracy
+design-space:
+	$(RUN) --suite design-space
+
+cpu-bench accuracy:
+	$(RUN) --suite $@
+
 postroute:
 	$(RUN) --suite $@ --physical-run "$(PHYSICAL_RUN)"
 

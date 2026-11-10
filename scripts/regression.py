@@ -32,7 +32,7 @@ class Regression:
                        "random_cases": args.random_cases, "sizes": getattr(args, "sizes", [4]),
                        "tools": {}, "steps": [], "status": "RUNNING"}
         sources = [ROOT / "Makefile"]
-        for folder in ("rtl", "tb", "scripts", "synth", "timing", "constraints", "lib", "physical", "examples", "ci"):
+        for folder in ("rtl", "tb", "scripts", "synth", "timing", "constraints", "lib", "physical", "examples", "ci", "bench"):
             sources.extend(path for path in (ROOT / folder).rglob("*")
                            if path.is_file() and "__pycache__" not in path.parts)
         self.report["source_sha256"] = {
@@ -358,7 +358,7 @@ class Regression:
 
     def execute(self):
         suite = self.args.suite
-        if suite in ("verify","sram","sram-synth","synth","ppa","gate","architecture","memory-synth"):
+        if suite in ("verify","sram","sram-synth","synth","ppa","gate","architecture","design-space","memory-synth"):
             self.require_synthesis_tool()
         if suite in ("python", "verify"):
             self.python()
@@ -396,6 +396,15 @@ class Regression:
             self.timing()
         if suite == "architecture":
             self.architecture()
+        if suite == "design-space":
+            from design_space import run_design_space
+            run_design_space(self)
+        if suite == "cpu-bench":
+            from cpu_benchmark import run_cpu_benchmark
+            run_cpu_benchmark(self)
+        if suite == "accuracy":
+            from accuracy_study import run_accuracy_study
+            run_accuracy_study(self)
         if suite=="physical":
             from physical_flow import run_physical
             run_physical(self)
@@ -421,7 +430,7 @@ class Regression:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "memory", "memory-sva", "memory-bench", "memory-synth", "inference", "synth", "ppa", "gate", "architecture", "physical", "postroute", "model", "axi", "pvt", "sram", "sram-synth", "rcx"], default="verify")
+    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "memory", "memory-sva", "memory-bench", "memory-synth", "inference", "synth", "ppa", "gate", "architecture", "design-space", "cpu-bench", "accuracy", "physical", "postroute", "model", "axi", "pvt", "sram", "sram-synth", "rcx"], default="verify")
     parser.add_argument("--physical-run")
     parser.add_argument("--rcx-run")
     parser.add_argument("--physical-design", choices=["memory_gemm","axi_gemm"], default="memory_gemm")
