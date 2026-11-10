@@ -1,0 +1,67 @@
+
+# ============================================================
+# INT8 SYSTOLIC ARRAY - TIMING-DRIVEN SKY130 SYNTHESIS
+# ============================================================
+#
+# Objective:
+#   Improve timing through ABC technology mapping,
+#   buffering and gate sizing without modifying RTL.
+#
+# Baseline:
+#   Cell area     : 79003.2704 um^2
+#   Cell count    : 9279
+#   Minimum period: 18.06 ns
+#   Estimated Fmax: 55.36 MHz
+#
+# Target:
+#   10 ns clock period (100 MHz)
+#
+# This is an optimization target, not a guaranteed result.
+#
+# ============================================================
+
+# 1. Read the standard-cell library
+read_liberty -lib -ignore_miss_func lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+# 2. Load unchanged RTL
+read_verilog -sv rtl/mac_pe.sv rtl/systolic_array.sv
+
+# 3. Elaborate design
+hierarchy -check -top systolic_array
+
+# 4. Run logic synthesis without default ABC mapping
+synth -top systolic_array -flatten -noabc
+
+# 5. Unmap flip-flop enables
+dffunmap
+
+# 6. Map sequential logic to SKY130 cells
+dfflibmap -liberty lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+# 7. Timing-driven combinational logic mapping
+#
+# -D 10000: 10000 ps target
+# -constr: input driver and output load assumptions
+#
+# ABC can now attempt buffering and cell resizing.
+
+abc -liberty lib/sky130_fd_sc_hd__tt_025C_1v80.lib -constr synth/abc_timing.constr -D 10000
+
+# 8. Remove unused logic
+clean -purge
+
+# 9. Validate netlist structure
+check -assert
+
+# 10. Report optimized cell area and count
+stat -liberty lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+# 11. Preserve optimized netlist separately from baseline
+write_verilog -noattr -noexpr build/systolic_sky130_timing.v
+
+# 12. Export JSON representation
+write_json build/systolic_sky130_timing.json
+
+# ============================================================
+# END
+# ============================================================

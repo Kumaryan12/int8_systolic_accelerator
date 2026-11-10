@@ -1,0 +1,79 @@
+
+# ============================================================
+# INT8 SYSTOLIC ARRAY
+# CLEAN TIMING-DRIVEN SKY130 TECHNOLOGY MAPPING
+# ============================================================
+#
+# Design:
+#   4x4 signed INT8 output-stationary systolic array
+#
+# Technology:
+#   SKY130HD, TT, 25 C, 1.8 V
+#
+# Objective:
+#   Retain timing optimization while excluding
+#   specialized low-power and clock-tree cells
+#   from combinational technology mapping.
+#
+# Inputs:
+#   rtl/mac_pe.sv
+#   rtl/systolic_array.sv
+#   lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+#   synth/abc_timing.constr
+#
+# Outputs:
+#   build/systolic_sky130_clean.v
+#   build/systolic_sky130_clean.json
+#
+# ============================================================
+
+# 1. Load SKY130 standard-cell library
+read_liberty -lib -ignore_miss_func lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+# 2. Load original RTL, without modifying functionality
+read_verilog -sv rtl/mac_pe.sv rtl/systolic_array.sv
+
+# 3. Check design hierarchy
+hierarchy -check -top systolic_array
+
+# 4. Synthesize logic without automatic ABC mapping
+synth -top systolic_array -flatten -noabc
+
+# 5. Convert enabled registers into ordinary DFF logic
+dffunmap
+
+# 6. Map sequential elements to SKY130 cells
+dfflibmap -liberty lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+# 7. Timing-driven combinational mapping
+#
+# Delay target: 10000 ps = 10 ns
+#
+# Excluded:
+#   lpflow_* : specialized low-power cells
+#   clkbuf_* : clock-tree buffers
+#   clkinv_* : clock-tree inverters
+#   probe*   : probe cells
+#
+# Normal combinational buffers remain available.
+
+abc -liberty lib/sky130_fd_sc_hd__tt_025C_1v80.lib -constr synth/abc_timing.constr -D 10000 -dont_use sky130_fd_sc_hd__lpflow_* -dont_use sky130_fd_sc_hd__clkbuf_* -dont_use sky130_fd_sc_hd__clkinv_* -dont_use sky130_fd_sc_hd__probe*
+
+# 8. Remove unused wires and cells
+clean -purge
+
+# 9. Check structural integrity
+check -assert
+
+# 10. Report mapped cell count and area
+stat -liberty lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+# 11. Export clean timing-driven netlist
+write_verilog -noattr -noexpr build/systolic_sky130_clean.v
+
+# 12. Export machine-readable JSON
+write_json build/systolic_sky130_clean.json
+
+# ============================================================
+# END
+# ============================================================

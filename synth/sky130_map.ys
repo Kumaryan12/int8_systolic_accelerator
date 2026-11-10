@@ -1,0 +1,53 @@
+
+# ============================================================
+# INT8 SYSTOLIC ARRAY - SKY130 TECHNOLOGY MAPPING
+# ============================================================
+#
+# Design : 4x4 signed INT8 systolic array
+# Tool   : Yosys
+# Library: SkyWater SKY130 FD SC HD
+# Corner : Typical, 25 C, 1.80 V
+#
+# Outputs:
+#   build/systolic_sky130.v
+#   build/systolic_sky130.json
+#   build/synth_sky130.log
+#
+# ============================================================
+
+# 1. Load the SKY130 standard-cell definitions
+read_liberty -lib -ignore_miss_func lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+# 2. Read synthesizable RTL
+read_verilog -sv rtl/mac_pe.sv rtl/systolic_array.sv
+
+# 3. Elaborate the design
+hierarchy -check -top systolic_array
+
+# 4. Synthesize without generic ABC mapping
+synth -top systolic_array -flatten -noabc
+
+# 5. Convert clock-enabled registers to
+#    flip-flops with combinational input logic
+dffunmap
+
+# 6. Map flip-flops to SKY130 standard cells
+dfflibmap -liberty lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+# 7. Map combinational logic to SKY130 cells
+abc -liberty lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+# 8. Clean unused logic
+clean -purge
+
+# 9. Check synthesized design
+check -assert
+
+# 10. Report standard-cell count and area
+stat -liberty lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+# 11. Export technology-mapped Verilog
+write_verilog -noattr -noexpr build/systolic_sky130.v
+
+# 12. Export JSON netlist
+write_json build/systolic_sky130.json

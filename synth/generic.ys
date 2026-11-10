@@ -1,0 +1,31 @@
+
+# ============================================================
+# INT8 SYSTOLIC ARRAY - GENERIC SYNTHESIS
+# ============================================================
+#
+# Design: 4x4 INT8 Systolic Array Accelerator
+# Tool: Yosys
+# Top Module: systolic_array
+#
+# ============================================================
+
+# Read RTL design files
+read_verilog -sv rtl/mac_pe.sv rtl/systolic_array.sv
+
+# Elaborate design and check module hierarchy
+hierarchy -check -top systolic_array
+
+# Perform generic RTL synthesis
+synth -top systolic_array -flatten
+
+# Check the synthesized design
+check -assert
+
+# Print cell and logic statistics
+stat -width
+
+# Generate synthesized Verilog netlist
+write_verilog -noattr build/systolic_netlist.v
+
+# Generate JSON netlist
+write_json build/systolic_netlist.json
