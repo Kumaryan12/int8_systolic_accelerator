@@ -19,7 +19,7 @@ a zero process exit without required pass markers is also an error.
 
 Each invocation writes a new `build/run_<UTC timestamp>_<unique suffix>/`
 directory with logs and `summary.json`. The summary records exact commands,
-seed list, tool versions, source Git commit and working-tree changes, UVM
+seed list, tool versions, source SHA256 hashes, Git commit and working-tree changes, UVM
 revision, return codes, and execution times. Previous runs are retained.
 
 Individual commands:
@@ -32,6 +32,7 @@ make coverage
 make uvm
 make sva
 make gemm
+make inference
 make verify SEEDS="2026 20261110 42" RANDOM_CASES=200 JOBS=2
 make synth
 make sta
@@ -60,6 +61,10 @@ STA="$HOME/eda-tools/OpenSTA/build/sta" make sta
 `make gemm` verifies the hardware tiled wrapper across seven rectangular and
 square shapes, with directed/random inputs and reset recovery. It is also part
 of `make verify`.
+
+`make inference` compares hardware tiled GEMM, integer requantization and ReLU
+against Python, records numerical error, and exports a JSON result, VCD and
+an SVG control waveform. These checks are also part of `make verify`.
 
 `make synth` regenerates generic, SKY130 baseline, and clean timing-driven
 netlists in the new run directory. `make sta` performs those builds, generates

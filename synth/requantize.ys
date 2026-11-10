@@ -1,6 +1,8 @@
 read_verilog -sv rtl/requantize.sv
 hierarchy -check -top requantize
-synth -top requantize
+# Structural check only; unconstrained ABC optimization of a general 32x31-bit
+# multiplier is expensive and would not yield a technology-mapped PPA result.
+synth -top requantize -noabc
 check -assert
 stat -width
 write_verilog -noattr build/requantize_netlist.v

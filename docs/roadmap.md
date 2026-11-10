@@ -1,33 +1,42 @@
 # Development roadmap
 
-## Phase 1 — Functional RTL baseline (this starter repository)
-- 4x4 signed INT8 systolic MAC array, skewed feed and 18-bit accumulation.
-- Matrix-capture controller with start/busy/done.
-- Self-checking directed/random SystemVerilog tests against integer golden products.
-- Pure Python independent reference and cycle schedule models.
-- **To complete:** run `make sim`, debug simulator/tool compatibility, record passing logs.
+## Completed functional milestones
 
-## Phase 2 — Verification excellence (most relevant for Cisco)
-- Write SystemVerilog interface + transactions with reproducible seeds.
-- Class-based constrained-random stimulus and driver/monitor/scoreboard.
-- Functional coverage: min/max/zero, sign combinations, reset during job,
-  start while busy, multi-job sequences, output range, corner timing.
-- Add SVA assertions for valid transaction protocol and done latency.
-- Build repeatable regression automation, coverage report and bug tracker.
+- [x] Parameterized INT8 systolic tile and signed accumulators.
+- [x] Independent Python matrix and cycle-schedule models.
+- [x] Reproducible from-source regression, pinned UVM, source hashes and CI.
+- [x] Multiple seeds, N=2/3/4/8 RTL tests and reset-phase/recovery sweeps.
+- [x] UVM driver, monitor, scoreboard, busy-start rejection and reset-abort handling.
+- [x] Procedural and temporal assertions, defined functional bins and code-coverage exports.
+- [x] Generic and SKY130 synthesis, mapped functional tests and pre-layout timing.
+- [x] Cell-count/area comparisons across array sizes.
+- [x] Hardware tiled GEMM with rectangular tails and wider partial-sum accumulation.
+- [x] Integer rounding, requantization, saturation and ReLU in hardware.
+- [x] Small quantized RTL layer with Python comparisons and numerical-error report.
+- [x] Architecture/waveform documentation and evidence-based portfolio wording.
 
-## Phase 3 — Architecture and PPA
-- Explore PE pipeline options; compare accumulator widths and array sizes.
-- Synthesize RTL with an FPGA or standard-cell tool and save cell count/Fmax reports.
-- Document cost of input/output staging; compare 2x2, 4x4 and 8x8 array variants.
-- Explain arithmetic throughput vs. end-to-end latency vs. utilization.
+## Next architecture milestone — memory and integration
 
-## Phase 4 — AI inference connection
-- Implement tiled GEMM for larger matrices, including tail padding and multi-tile accumulation.
-- Add INT8 quantization scales, accumulation, requantization and saturation rules.
-- Compare the reference inference outputs with NumPy/PyTorch (optional dependency).
-- Report exact model size and numerical tolerance; no unsupported speedup claims.
+- [ ] Specify SRAM/BRAM organization and a host/transfer interface.
+- [ ] Replace the expensive wide register-backed input/output implementation.
+- [ ] Add double buffering and overlap transfer with computation.
+- [ ] Measure initiation interval, useful utilization and transfer-inclusive throughput.
 
-## Phase 5 — Polished presentation
-- Architecture diagram, datapath/wavefront timing diagram, verification plan,
-  regression log, synthesis results and limitations.
-- Demo on GitHub with reproducible instructions and project screenshots.
+## Implementation and verification work still open
+
+- [ ] Full physical PDK/tool flow, floorplan, placement, clock tree and routing.
+- [ ] Extracted setup/hold analysis across relevant corners and reset recovery/removal.
+- [ ] Activity-based power analysis and mapped timing for the complete GEMM layer.
+- [ ] Formal equivalence or stronger bounded proofs where useful.
+- [ ] Uncovered-point review and justified functional/code coverage closure.
+- [ ] Additional parameter/width and host-protocol robustness cases.
+
+## Model-level demonstration
+
+- [ ] Integrate a trained model with representative calibration data.
+- [ ] Add bias and per-channel quantization where the model requires them.
+- [ ] Evaluate task-level accuracy and measured performance on an actual target.
+
+Existing pre-layout estimates and synthetic layer results must retain their
+scope when presented on GitHub or a resume. No production-IP, power or device
+speedup claim is justified by the current results.

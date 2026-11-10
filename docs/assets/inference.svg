@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1050" height="518" viewBox="0 0 1050 518">
+<rect width="1050" height="518" fill="#f8fafc"/>
+<g font-family="Arial,sans-serif" font-size="13" fill="#172033">
+<text x="24" y="30" font-size="21" font-weight="bold">Tiled RTL inference — recorded control waveform</text>
+<text x="24" y="54">3×5 by 5×7 · four tile jobs · output valid 48 clocks after acceptance</text>
+<path d="M140.00 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="140.00" y="506" text-anchor="middle">0 ns</text>
+<path d="M220.00 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="220.00" y="506" text-anchor="middle">50 ns</text>
+<path d="M300.00 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="300.00" y="506" text-anchor="middle">100 ns</text>
+<path d="M380.00 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="380.00" y="506" text-anchor="middle">150 ns</text>
+<path d="M460.00 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="460.00" y="506" text-anchor="middle">200 ns</text>
+<path d="M540.00 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="540.00" y="506" text-anchor="middle">250 ns</text>
+<path d="M620.00 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="620.00" y="506" text-anchor="middle">300 ns</text>
+<path d="M700.00 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="700.00" y="506" text-anchor="middle">350 ns</text>
+<path d="M780.00 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="780.00" y="506" text-anchor="middle">400 ns</text>
+<path d="M860.00 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="860.00" y="506" text-anchor="middle">450 ns</text>
+<path d="M940.00 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="940.00" y="506" text-anchor="middle">500 ns</text>
+<path d="M1020.00 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="1020.00" y="506" text-anchor="middle">550 ns</text>
+<text x="24" y="111">reset_n</text>
+<path d="M140.00,121 H140.00 V121 H188.00 V95 H1020.00" fill="none" stroke="#1761c5" stroke-width="2"/>
+<text x="24" y="165">host start</text>
+<path d="M140.00,175 H140.00 V175 H204.00 V149 H220.00 V175 H1020.00" fill="none" stroke="#1761c5" stroke-width="2"/>
+<text x="24" y="219">host busy</text>
+<path d="M140.00,229 H140.00 V229 H148.00 V229 H212.00 V203 H980.00 V229 H1020.00" fill="none" stroke="#1761c5" stroke-width="2"/>
+<text x="24" y="273">host done</text>
+<path d="M140.00,283 H140.00 V283 H148.00 V283 H980.00 V257 H996.00 V283 H1020.00" fill="none" stroke="#1761c5" stroke-width="2"/>
+<text x="24" y="327">tile start</text>
+<path d="M140.00,337 H140.00 V337 H148.00 V337 H212.00 V311 H228.00 V337 H404.00 V311 H420.00 V337 H596.00 V311 H612.00 V337 H788.00 V311 H804.00 V337 H1020.00" fill="none" stroke="#1761c5" stroke-width="2"/>
+<text x="24" y="381">tile busy</text>
+<path d="M140.00,391 H140.00 V391 H148.00 V391 H228.00 V365 H388.00 V391 H420.00 V365 H580.00 V391 H612.00 V365 H772.00 V391 H804.00 V365 H964.00 V391 H1020.00" fill="none" stroke="#1761c5" stroke-width="2"/>
+<text x="24" y="435">tile done</text>
+<path d="M140.00,445 H140.00 V445 H148.00 V445 H388.00 V419 H404.00 V445 H580.00 V419 H596.00 V445 H772.00 V419 H788.00 V445 H964.00 V419 H980.00 V445 H1020.00" fill="none" stroke="#1761c5" stroke-width="2"/>
+</g></svg>

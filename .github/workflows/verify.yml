@@ -50,4 +50,5 @@ jobs:
             build/run_*/*.info
             build/run_*/inference.json
             build/run_*/inference.vcd
+            build/run_*/inference.svg
           if-no-files-found: warn

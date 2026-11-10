@@ -6,6 +6,7 @@ import random
 
 from quantization import fixed_point_scale, requantize_int
 from tiled_gemm import quantize_symmetric_int8, tiled_gemm_int8
+from waveform_svg import waveform_svg
 
 
 def packed_hex(matrix):
@@ -50,6 +51,7 @@ def run_demo(run):
             "rtl/mac_pe.sv", "rtl/systolic_array.sv", "rtl/tiled_gemm.sv", "rtl/requantize.sv", "tb/tb_inference.sv"])
     run.run("inference_rtl", [run.tool("vvp"), str(executable), f"+INPUT={inputs}", f"+OUTPUT={outputs}",
             f"+WAVE={run.directory / 'inference.vcd'}"], [r"PASS: Inference RTL completed outputs=21 cycles=48"])
+    waveform_svg(run.directory / "inference.vcd", run.directory / "inference.svg")
     actual = [tuple(map(int,line.split())) for line in outputs.read_text().splitlines()]
     expected = [(value,requantize_int(value,multiplier,shift,relu=True)) for row in golden_accum for value in row]
     if actual != expected:

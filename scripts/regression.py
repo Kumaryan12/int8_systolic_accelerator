@@ -1,6 +1,7 @@
 """Rebuild, execute, and retain evidence for accelerator checks (stdlib only)."""
 
 import argparse
+import hashlib
 from datetime import datetime, timezone
 import json
 import os
@@ -8,6 +9,7 @@ from pathlib import Path
 import re
 import shlex
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -27,6 +29,14 @@ class Regression:
         self.report = {"suite": args.suite, "started_utc": stamp, "seeds": args.seeds,
                        "random_cases": args.random_cases, "sizes": getattr(args, "sizes", [4]),
                        "tools": {}, "steps": [], "status": "RUNNING"}
+        sources = [ROOT / "Makefile"]
+        for folder in ("rtl", "tb", "scripts", "synth", "timing", "constraints", "lib"):
+            sources.extend(path for path in (ROOT / folder).rglob("*")
+                           if path.is_file() and "__pycache__" not in path.parts)
+        self.report["source_sha256"] = {
+            str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in sorted(sources) if path.is_file()
+        }
         for label, command in {
             "git_commit": ["git", "rev-parse", "HEAD"],
             "git_changes": ["git", "status", "--porcelain"],
@@ -60,12 +70,24 @@ class Regression:
         started = time.monotonic()
         try:
             with log.open("w") as output:
-                result = subprocess.run(command, cwd=ROOT, stdout=output, stderr=subprocess.STDOUT,
-                                        timeout=timeout, env=env)
+                process = subprocess.Popen(command, cwd=ROOT, stdout=output, stderr=subprocess.STDOUT,
+                                           env=env, start_new_session=True)
+                try:
+                    process.wait(timeout=timeout)
+                except subprocess.TimeoutExpired:
+                    # Compilers/synthesis tools spawn children; stop the full
+                    # process group so a timed-out run cannot leave CPU jobs behind.
+                    os.killpg(process.pid, signal.SIGTERM)
+                    try:
+                        process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        os.killpg(process.pid, signal.SIGKILL)
+                        process.wait()
+                    raise
             content = log.read_text(errors="replace")
-            step["returncode"] = result.returncode
-            if result.returncode != 0:
-                raise RuntimeError(f"{name} exited with {result.returncode}")
+            step["returncode"] = process.returncode
+            if process.returncode != 0:
+                raise RuntimeError(f"{name} exited with {process.returncode}")
             for marker in markers:
                 if not re.search(marker, content):
                     raise RuntimeError(f"{name} did not report required result: {marker}")

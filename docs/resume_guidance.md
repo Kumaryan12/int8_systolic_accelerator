@@ -1,16 +1,22 @@
-# Resume guidance: do not claim unfinished work
+# Evidence-based resume wording
 
-## Current honest wording (prototype, until HDL simulation)
-**INT8 Systolic Array Accelerator (in progress)** | SystemVerilog, Python
-- Designed a 4x4 output-stationary systolic datapath with 16 signed INT8 MAC units and 18-bit accumulators for 4x4 matrix multiplication.
-- Developed a golden matrix-multiplication model and a cycle-level wavefront model in Python; drafted a self-checking SystemVerilog testbench for directed and randomized inputs.
+**INT8 Systolic Matrix Accelerator** | SystemVerilog, UVM, Python, Yosys, OpenSTA
 
-## Replace only after verification
-- Implemented and simulated a 4x4 INT8 systolic-array accelerator with 16 signed MAC units and 18-bit accumulation, validated against a Python reference using [number] test vectors.
-- Built [actual SV/UVM coverage approach], achieving [measured coverage] and [measured synthesis/timing result] on [tool and process/device].
+- Implemented a 4×4 signed-INT8 systolic tile with 16 MAC units and 18-bit
+  accumulators, then added a hardware scheduler for rectangular tiled GEMM,
+  zero-padded tails and wider cross-tile accumulation.
+- Built a seeded RTL/UVM regression with six temporal assertions, reset-abort
+  recovery and a scoreboard; validated 208 completed transactions and 3,328
+  outputs per UVM seed, plus 777 tiled GEMMs across seven shapes/three seeds.
+- Mapped the base tile to SKY130HD and checked mapped-netlist functionality;
+  recorded 9,727 cells and 80,737 µm² summed cell area, with positive pre-layout
+  slack at a 100 MHz target under typical-corner ideal-clock assumptions.
+- Verified hardware requantization/ReLU against 1,900 integer vectors and a
+  Python-referenced layer demo; automated source builds and evidence capture
+  through GitHub Actions.
 
-## Where it sits in the Cisco resume
-1. Accelerator project, once functional.
-2. Verified Wallace-tree multiplier project (accurately describe own contribution).
-3. One software project emphasizing Python/C++, automated tests, CI/CD.
-Keep IIT Madras internship, shorten AI-only project details.
+Select two or three bullets for a resume. Explain output-stationary dataflow,
+wavefront skew, accumulator sizing, reset cancellation, padding and throughput
+accounting in an interview. Follow the linked checkpoint evidence for exact
+scope. The layer uses synthetic weights; the project has no placed/routed chip,
+measured device Fmax, power result or model-accuracy benchmark.

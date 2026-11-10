@@ -41,6 +41,9 @@ module tb_inference;
             $fdisplay(fd,"%0d %0d",$signed(c_matrix[OUT_W*i +: OUT_W]),$signed(output_value[i]));
         $fclose(fd);
         $display("PASS: Inference RTL completed outputs=21 cycles=%0d",cycles);
+        repeat (2) @(posedge clk);
+        #1;
+        if (done || busy) $fatal(1,"Inference done did not return to idle");
         $finish;
     end
 endmodule
