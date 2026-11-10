@@ -12,7 +12,11 @@ module tb_axi_gemm;
     reg [3:0] s_axi_wstrb=0;
     wire [1:0] s_axi_bresp,s_axi_rresp;
     wire [31:0] s_axi_rdata;
+`ifdef PHYSICAL_AXI
+    axi_gemm_gate dut(.*);
+`else
     axi_gemm #(.M(M),.K(K),.N(N),.TILE(TILE)) dut(.*);
+`endif
     integer seed=20261110, rng, discarded, writes=0,reads=0,resets=0;
     integer expected[0:JOBS-1][0:OUTPUTS-1];
     integer operands[0:JOBS-1][0:WORDS-1];

@@ -1,0 +1,13 @@
+{
+  "setup_slack_ns": 10.5441,
+  "hold_slack_ns": 0.167608,
+  "cell_area_um2": 211912,
+  "stdcell_count": 21653,
+  "die_area_um2": 570622,
+  "core_area_um2": 539843,
+  "estimated_fmax_Hz": 105754000.0,
+  "vectorless_power_W": 0.0144234,
+  "route_drc_errors": 0,
+  "implementation_lec_passed": true,
+  "scope": "SKY130HD TT 25C 1.8V, extracted wires, propagated clock, 20ns target; only external reset into synchronizer excepted"
+}

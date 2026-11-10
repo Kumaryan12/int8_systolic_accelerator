@@ -1,0 +1,72 @@
+{
+  "physical_run": "build/run_20261110T105454Z__dbcos4i",
+  "design": "axi_gemm",
+  "corners": [
+    {
+      "corner": "tt_025C_1v80",
+      "period_ns": 20.0,
+      "setup_slack_ns": 10.544124,
+      "hold_slack_ns": 0.167608,
+      "timing_closed": true,
+      "recovery_slack_ns": 15.514723,
+      "removal_slack_ns": 0.504976,
+      "reset_sync_setup_slack_ns": 19.338448,
+      "qualified_reset_checks_reported": true,
+      "reset_stages": "{{reset_release.release_pipe\\[0\\]$_DFF_PN0_} {72680 19040}} {{reset_release.release_pipe\\[1\\]$_DFF_PN0_} {79580 21760}}",
+      "reset_stage_manhattan_um": 9.62
+    },
+    {
+      "corner": "ss_100C_1v60",
+      "period_ns": 20.0,
+      "setup_slack_ns": 1.016677,
+      "hold_slack_ns": 0.474279,
+      "timing_closed": true,
+      "recovery_slack_ns": 12.216547,
+      "removal_slack_ns": 0.918667,
+      "reset_sync_setup_slack_ns": 18.798719,
+      "qualified_reset_checks_reported": true,
+      "reset_stages": "{{reset_release.release_pipe\\[0\\]$_DFF_PN0_} {72680 19040}} {{reset_release.release_pipe\\[1\\]$_DFF_PN0_} {79580 21760}}",
+      "reset_stage_manhattan_um": 9.62
+    },
+    {
+      "corner": "ff_n40C_1v95",
+      "period_ns": 20.0,
+      "setup_slack_ns": 14.091461,
+      "hold_slack_ns": 0.118431,
+      "timing_closed": true,
+      "recovery_slack_ns": 17.004272,
+      "removal_slack_ns": 0.323768,
+      "reset_sync_setup_slack_ns": 19.507902,
+      "qualified_reset_checks_reported": true,
+      "reset_stages": "{{reset_release.release_pipe\\[0\\]$_DFF_PN0_} {72680 19040}} {{reset_release.release_pipe\\[1\\]$_DFF_PN0_} {79580 21760}}",
+      "reset_stage_manhattan_um": 9.62
+    }
+  ],
+  "all_timing_closed": true,
+  "scope": "three cell PVTs; same extracted RC; propagated clocks; internal qualified-reset recovery/removal timed; only raw reset into synchronizer excepted; no RC-corner/foundry signoff",
+  "libraries": {
+    "repository": "https://github.com/efabless/skywater-pdk-libs-sky130_fd_sc_hd",
+    "revision": "5a42fd01a0eeb2338340438443c7062e198d97a4",
+    "license": "Apache-2.0; see lib/LICENSE.sky130",
+    "tt_025C_1v80": {
+      "source": "pinned ORFS image /OpenROAD-flow-scripts/flow/platforms/sky130hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib",
+      "sha256": "ec0e1067a35c8bf20b11e58d1e8ac53326067e4dac84a125cc1b917a3518d0d9"
+    },
+    "downloads": {
+      "ss_100C_1v60": {
+        "url": "https://raw.githubusercontent.com/efabless/skywater-pdk-libs-sky130_fd_sc_hd/5a42fd01a0eeb2338340438443c7062e198d97a4/timing/sky130_fd_sc_hd__ss_100C_1v60.lib",
+        "sha256": "9b24f0db3967ac67b4cae1f74bb480fd47922d18d0ed577e3c121739b412c361"
+      },
+      "ff_n40C_1v95": {
+        "url": "https://raw.githubusercontent.com/efabless/skywater-pdk-libs-sky130_fd_sc_hd/5a42fd01a0eeb2338340438443c7062e198d97a4/timing/sky130_fd_sc_hd__ff_n40C_1v95.lib",
+        "sha256": "fb61d91c55a7f85b1989e8149d040b13ba5e7f5478f5bf0c3c16c5da30720139"
+      }
+    }
+  },
+  "image": "openroad/orfs@sha256:76fdfc62aa2ad5fdc373c38645d02be00ad346e7a1a65dff826a7a9f75eadf7d",
+  "physical_input_sha256": {
+    "6_final.odb": "f0bf849753fb0ae3ce634cda61137fbfd032ff410c4a476584589d7cb440b472",
+    "6_final.spef": "97659baf2afba6e4fe33d8deb70aff4fe558dd25b3200eee056860afb0f85e8a",
+    "6_final.sdc": "6157ce1806ce16c584893b2f84d9167af21f5e347d573d876f31f7efdde585c6"
+  }
+}

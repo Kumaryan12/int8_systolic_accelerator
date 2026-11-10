@@ -406,6 +406,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "memory", "memory-sva", "memory-bench", "memory-synth", "inference", "synth", "ppa", "gate", "architecture", "physical", "postroute", "model", "axi", "pvt"], default="verify")
     parser.add_argument("--physical-run")
+    parser.add_argument("--physical-design", choices=["memory_gemm","axi_gemm"], default="memory_gemm")
     parser.add_argument("--require-timing-closure", action="store_true")
     parser.add_argument("--pvt-periods", type=float, nargs="+", default=[10.0,20.0])
     parser.add_argument("--seeds", type=int, nargs="+", default=[20261110])

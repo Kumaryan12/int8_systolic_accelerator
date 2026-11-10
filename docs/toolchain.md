@@ -39,6 +39,9 @@ make memory-sva
 make memory-bench
 make model
 make physical
+make physical PHYSICAL_DESIGN=axi_gemm
+make axi
+make pvt PHYSICAL_RUN="build/run_<successful-physical-run>" PVT_ARGS="--pvt-periods 20 --require-timing-closure"
 make postroute PHYSICAL_RUN="build/run_<successful-physical-run>"
 make verify SEEDS="2026 20261110 42" RANDOM_CASES=200 JOBS=2
 make synth

@@ -31,3 +31,8 @@ separate results. Routed power/frequency are tool estimates, not silicon
 measurements. Three tested cell PVT corners close at 50 MHz with fixed extracted
 RC; 100 MHz fails at SS. RC corners, physical reset release and foundry signoff
 remain open.
+
+- Built and routed an AXI4-Lite GEMM peripheral with independent channels,
+  byte strobes, IRQs and synchronized reset release; passed routed host tests
+  and 50 MHz setup/hold/recovery/removal at three cell PVTs using fixed RC.
+  This is an open-PDK implementation result, not measured silicon or full signoff.

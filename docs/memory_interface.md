@@ -3,7 +3,8 @@
 `rtl/memory_gemm.sv` is the narrow-interface successor to the packed-bus
 `tiled_gemm` example. The latter remains a reference/latency comparison.
 Dimensions are elaboration-time parameters M,K,N,TILE; the default is 3×5
-by 5×7 using a 4×4 signed-INT8 tile. No AXI or DMA compatibility is implied.
+by 5×7 using a 4×4 signed-INT8 tile. This module exposes a custom stream; the separate [AXI4-Lite wrapper](axi_interface.md)
+adapts it for processor programmed I/O. DMA remains system integration work.
 
 ## Storage and scheduling
 

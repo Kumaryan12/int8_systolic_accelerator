@@ -93,3 +93,16 @@ slacks without failing; its `all_timing_closed` field states closure. Add
 manual physical CI workflow gates all three at 50 MHz. SS/FF downloads are
 pinned and checked; caches are ignored. This checks cell PVT variation with
 unchanged RC and reset exceptions, not full signoff. See [results](../docs/results/checkpoint_12.md).
+
+## AXI top and internal reset timing
+
+`make physical PHYSICAL_DESIGN=axi_gemm` builds the default-shape AXI peripheral
+with its qualified reset. `make pvt PHYSICAL_RUN=...` detects the physical top;
+for AXI, it also checks the actual routed netlist against the host/scoreboard
+bench at all configured seeds, then analyzes setup/hold and recovery/removal.
+Two surviving synchronizer flops, their locations and their interstage setup
+path must be reported. There is no internal-reset false path; only raw external
+`aresetn` into the synchronizer is excepted. Physical stage spacing is reported,
+not used to infer a metastability MTBF. The manual physical CI workflow accepts
+either top and defaults to AXI. `make postroute` power/rendering remains specific
+to the legacy stream top; its power results cannot be transferred to AXI.

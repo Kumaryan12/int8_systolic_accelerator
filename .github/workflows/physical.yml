@@ -1,5 +1,12 @@
 name: SKY130 physical flow
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      design:
+        description: Physical top
+        type: choice
+        options: [axi_gemm, memory_gemm]
+        default: axi_gemm
 permissions:
   contents: read
 jobs:
@@ -11,7 +18,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: make physical
+      - name: Install routed-gate simulation tools
+        if: inputs.design == 'axi_gemm'
+        run: sudo apt-get update && sudo apt-get install -y iverilog yosys
+      - run: make physical PHYSICAL_DESIGN="$PHYSICAL_DESIGN"
+        env:
+          PHYSICAL_DESIGN: ${{ inputs.design }}
       - name: Gate three cell PVT corners at 50 MHz
         run: |
           python3 - <<'PY'
@@ -24,7 +36,8 @@ jobs:
           if len(candidates) != 1:
               raise SystemExit('Expected exactly one successful physical run')
           subprocess.run(['python3', 'scripts/regression.py', '--suite', 'pvt',
-                          '--physical-run', str(candidates[0]), '--pvt-periods', '20',
+                          '--physical-run', str(candidates[0]), '--seeds', '2026', '20261110', '42',
+                          '--pvt-periods', '20',
                           '--require-timing-closure'], check=True)
           PY
       - uses: actions/upload-artifact@v4
@@ -39,4 +52,4 @@ jobs:
             build/run_*/*.log
             build/run_*/logs/
             build/run_*/reports/
-            build/run_*/results/sky130hd/int8_memory_gemm/base/6_final.*
+            build/run_*/results/sky130hd/*/base/6_final.*

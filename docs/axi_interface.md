@@ -63,11 +63,15 @@ streaming core retains its existing reset interface. `async_reg` and `keep`
 attributes identify the synchronizer; physical implementation must preserve
 both stages, place them appropriately, time internal recovery/removal and
 verify the library-specific reset pulse and metastability requirements.
-Digital tests establish cancellation and clocked-release behavior, not MTBF.
+Digital tests establish cancellation and clocked-release behavior. The
+[default routed implementation](results/checkpoint_13.md) preserves both stages
+and passes internal recovery/removal and synchronizer setup at three cell PVTs
+at 50 MHz with fixed extracted RC. MTBF and reset pulse characterization remain
+target work.
 
 `make axi` checks seven shapes at three seeds, four jobs per run, both write
 channel orders, byte strobes, invalid accesses, IRQ/W1C, backpressure and seven
 reset situations. The default shape also runs with five temporal assertions
-under Verilator. These tests are included in `make verify` and CI. This is a
-verified RTL peripheral; the earlier routed timing/power results belong to the
-streaming memory top and do not include this wrapper.
+under Verilator. These tests are included in `make verify` and CI. The default AXI top additionally passes three-seed routed gate tests and
+three-corner 50 MHz timing. The earlier workload power result belongs to the
+streaming memory top; no activity-based AXI power is claimed.

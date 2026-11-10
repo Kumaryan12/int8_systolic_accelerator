@@ -1,10 +1,11 @@
 import hashlib
+import json
 from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
 
-from pvt import checked_library, fetch_library, parse_timing
+from pvt import checked_library, fetch_library, parse_timing, validate_source, parse_path_slack
 
 
 class PvtEvidenceTests(unittest.TestCase):
@@ -33,3 +34,24 @@ class PvtEvidenceTests(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError,'checksum mismatch'):
                     fetch_library(cache,'test',metadata)
             with self.assertRaises(RuntimeError): checked_library(path,metadata['sha256'])
+
+    def test_changed_physical_artifact_or_toolchain_is_rejected(self):
+        with tempfile.TemporaryDirectory() as folder:
+            source=Path(folder)
+            artifact=source/'design.odb'
+            artifact.write_bytes(b'validated layout')
+            summary={'status':'PASS','suite':'physical',
+                     'physical_toolchain':{'image':'pinned-image'},
+                     'physical_artifacts':{'design.odb':{'sha256':hashlib.sha256(artifact.read_bytes()).hexdigest()}}}
+            (source/'summary.json').write_text(json.dumps(summary))
+            self.assertEqual(validate_source(source,{'image':'pinned-image'}),summary)
+            with self.assertRaisesRegex(RuntimeError,'image differ'):
+                validate_source(source,{'image':'other-image'})
+            artifact.write_bytes(b'changed layout')
+            with self.assertRaisesRegex(RuntimeError,'artifact changed'):
+                validate_source(source,{'image':'pinned-image'})
+
+    def test_reset_report_slacks_preserve_violations_and_reject_missing_evidence(self):
+        self.assertEqual(parse_path_slack('   1.250 slack (MET)\n  -0.010 slack (VIOLATED)'),-0.01)
+        for text in ('No paths found.','nan slack (MET)','invalid slack (MET)'):
+            with self.subTest(text=text),self.assertRaises(RuntimeError): parse_path_slack(text)

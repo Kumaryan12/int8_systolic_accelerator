@@ -7,8 +7,8 @@ import shutil
 import subprocess
 
 
-def extract_metrics(directory):
-    logs=directory/"logs/sky130hd/int8_memory_gemm/base"
+def extract_metrics(directory,nickname="int8_memory_gemm",design="memory_gemm"):
+    logs=directory/f"logs/sky130hd/{nickname}/base"
     route=json.loads((logs/"5_2_route.json").read_text())
     finish=json.loads((logs/"6_report.json").read_text())
     keys={"setup_slack_ns":"finish__timing__setup__ws","hold_slack_ns":"finish__timing__hold__ws",
@@ -26,12 +26,18 @@ def extract_metrics(directory):
         raise RuntimeError("Final implementation transformation equivalence check did not pass")
     result["implementation_lec_passed"]=True
     result["scope"]="SKY130HD TT 25C 1.8V, extracted wires, propagated clock, 20ns target; async reset release excepted"
+    if design=="axi_gemm":
+        result["scope"]="SKY130HD TT 25C 1.8V, extracted wires, propagated clock, 20ns target; only external reset into synchronizer excepted"
     return result
 
 
 def run_physical(run):
     root=Path(__file__).resolve().parents[1]
     config=json.loads((root/"physical/toolchain.json").read_text())
+    design=run.args.physical_design
+    config["design"]=design
+    config["nickname"]=f"int8_{design}"
+    config_file="physical/axi_config.mk" if design=="axi_gemm" else "physical/config.mk"
     docker=run.tool("docker")
     run.report["physical_toolchain"]=config
     run.save()
@@ -40,7 +46,8 @@ def run_physical(run):
     # This also works when Docker Desktop file sharing is unavailable.
     staging=run.directory/"physical_sources"
     for relative in ("rtl/mac_pe.sv","rtl/systolic_array.sv","rtl/sync_dp_ram.sv","rtl/memory_gemm.sv",
-                     "physical/config.mk","physical/memory_gemm.sdc"):
+                     "physical/config.mk","physical/memory_gemm.sdc","rtl/reset_sync.sv","rtl/axi_gemm.sv",
+                     "physical/axi_config.mk","physical/axi_gemm.sdc"):
         target=staging/relative
         target.parent.mkdir(parents=True,exist_ok=True)
         shutil.copy2(root/relative,target)
@@ -48,7 +55,7 @@ def run_physical(run):
              config["image"],"bash","-c",
              "source /OpenROAD-flow-scripts/env.sh && mkdir -p /output && "
              "cd /OpenROAD-flow-scripts/flow && "
-             f"make DESIGN_CONFIG=/project/physical/config.mk WORK_HOME=/output NUM_CORES={run.args.jobs} finish"]
+             f"make DESIGN_CONFIG=/project/{config_file} WORK_HOME=/output NUM_CORES={run.args.jobs} finish"]
     created=False
     succeeded=False
     try:
@@ -66,7 +73,7 @@ def run_physical(run):
         subprocess.run([docker,"rm","-f",name],capture_output=True,text=True,timeout=30)
     if collected.returncode:
         raise RuntimeError("Could not collect the physical-flow outputs")
-    result=run.directory/"results/sky130hd/int8_memory_gemm/base"
+    result=run.directory/f"results/sky130hd/{config['nickname']}/base"
     required=[result/f"6_final.{suffix}" for suffix in ("gds","odb","v","sdc")]
     if not all(path.is_file() for path in required):
         raise RuntimeError("OpenROAD did not produce all final GDS/ODB/netlist/SDC artifacts")
@@ -76,6 +83,6 @@ def run_physical(run):
     run.report["physical_artifacts"]={str(path.relative_to(run.directory)):{
         "bytes":path.stat().st_size,"sha256":hashlib.sha256(path.read_bytes()).hexdigest()}
         for path in required+spef}
-    run.report["physical_metrics"]=extract_metrics(run.directory)
+    run.report["physical_metrics"]=extract_metrics(run.directory,config["nickname"],design)
     (run.directory/"physical_metrics.json").write_text(json.dumps(run.report["physical_metrics"],indent=2)+"\n")
     run.save()

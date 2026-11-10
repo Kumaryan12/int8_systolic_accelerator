@@ -35,6 +35,8 @@ def run_postroute(run):
     previous=json.loads((source/"summary.json").read_text())
     if previous["status"]!="PASS" or previous.get("suite")!="physical":
         raise RuntimeError("Postroute input must be a successful physical run")
+    if previous["physical_toolchain"].get("design")!="memory_gemm":
+        raise RuntimeError("Postroute power/rendering supports memory_gemm; use make pvt for AXI routed gates and timing")
     config=json.loads((root/"physical/toolchain.json").read_text())
     if previous["physical_toolchain"]["image"]!=config["image"]:
         raise RuntimeError("Physical run and analysis image differ")

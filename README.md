@@ -2,7 +2,8 @@
 
 A SystemVerilog AI-hardware prototype: a systolic tile, memory-backed GEMM
 with two job slots, integer output scaling, a trained digit-classifier demo,
-and a routed SKY130 implementation with extracted timing and activity-based power.
+and routed SKY130 implementations with extracted timing and reset checks.
+The streaming top also has an activity-based power estimate.
 
 [![Verification](https://github.com/Kumaryan12/int8_systolic_accelerator/actions/workflows/verify.yml/badge.svg)](https://github.com/Kumaryan12/int8_systolic_accelerator/actions/workflows/verify.yml)
 
@@ -27,7 +28,7 @@ See [toolchain setup](docs/toolchain.md) for versions and individual commands.
 | UVM | 208 completed transactions, 3,328 output checks and one reset abort per seed; busy-start rejection and recovery |
 | Hardware tiled GEMM | Seven shapes, three seeds, 777 completed GEMMs; padding and cross-tile accumulation |
 | Memory-backed GEMM | Two tagged job slots, three synchronous RAMs, narrow valid/ready streams; 168 checked GEMMs |
-| AXI4-Lite peripheral | Independent address/data channels, byte strobes, tagged result CSRs, IRQs and synchronized reset release; [contract](docs/axi_interface.md) |
+| AXI4-Lite peripheral | Independent channels, byte strobes, tagged CSRs, IRQs and qualified reset; routed gate tests and three cell PVTs pass at 50 MHz ([results](docs/results/checkpoint_13.md)) |
 | Memory pipeline performance | Eight-job overlapped schedules take 23–35% fewer cycles than the same interface driven serially; [measured scope](docs/results/checkpoint_8.md) |
 | Integer postprocessing | 1,900 Python/RTL comparisons of rounding, saturation, zero points and ReLU |
 | RTL layer demo | 21 exact integer outputs; 48 clocks; max float-reference error 0.02152 |
@@ -70,7 +71,13 @@ runs the functional regression on Ubuntu and archives evidence.
 
 ## Implementation results and scope
 
-The default **memory-backed** 3×5 by 5×7 top has a routed SKY130HD result:
+The **AXI peripheral** has a routed SKY130HD implementation with 21,653 standard
+cells and 211,912 µm² cell area. At 50 MHz, TT/SS/FF cell corners pass setup,
+hold, qualified-reset recovery/removal and synchronizer setup using the same
+extracted RC. Three seeds of routed gate-level host tests pass; router DRC
+errors are zero. See [AXI physical results](docs/results/checkpoint_13.md).
+
+The earlier **streaming memory** 3×5 by 5×7 top has a separate routed result:
 20,630 standard cells and 203,764 µm² of standard-cell area. Extracted timing
 analysis at **100 MHz** reports **+1.061157 ns setup** and **+0.139495 ns hold**
 slack. An eight-job routed-netlist switching trace gives **27.69079 mW** estimated
@@ -86,8 +93,9 @@ sweep passes setup/hold at 50 MHz for TT/SS/FF using the same extracted RC;
 [Current status](docs/project_status.md) · [Roadmap](docs/roadmap.md)
 
 The memory uses a standard-cell fallback. The AXI4-Lite peripheral is verified
-in RTL; hard SRAM/BRAM, processor/DMA integration, RC corners and reset recovery/removal,
-foundry DRC/LVS and real-device measurements remain open. Zero router errors
+in RTL and routed gates. Hard SRAM/BRAM, processor/DMA integration, RC corners,
+reset pulse/MTBF characterization, foundry DRC/LVS and real-device measurements
+remain open. Zero router errors
 and typical-corner timing are not production signoff. Historical base-tile
 pre-layout numbers are kept in the [checkpoint reports](docs/results/); they
 should not be confused with the larger routed memory-backed design or the

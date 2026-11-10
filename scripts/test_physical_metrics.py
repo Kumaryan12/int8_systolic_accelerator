@@ -42,3 +42,11 @@ class PhysicalGateTests(unittest.TestCase):
     def test_failed_equivalence_is_rejected(self):
         self.write(proof="SAT counterexample")
         with self.assertRaisesRegex(RuntimeError,"equivalence"): extract_metrics(self.root)
+
+    def test_axi_metrics_use_their_own_top_directory_and_reset_scope(self):
+        target=self.root/'logs/sky130hd/int8_axi_gemm/base'
+        target.parent.mkdir(parents=True)
+        self.logs.rename(target)
+        result=extract_metrics(self.root,'int8_axi_gemm','axi_gemm')
+        self.assertTrue(result['implementation_lec_passed'])
+        self.assertIn('only external reset into synchronizer excepted',result['scope'])

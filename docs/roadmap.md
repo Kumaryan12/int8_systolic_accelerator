@@ -29,7 +29,8 @@
 - [x] Pinned SKY130 flow: floorplan, placement, clock tree, routing, GDS and extraction.
 - [x] Extracted typical-corner setup/hold analysis at 100 MHz.
 - [x] Extracted TT/SS/FF cell-PVT sweep; strict setup/hold pass at 50 MHz with fixed RC.
-- [ ] RC corners, qualified-reset physical recovery/removal and foundry signoff.
+- [x] Route AXI, run actual gate host tests and time internal qualified-reset recovery/removal at three cell PVTs.
+- [ ] RC corners, reset pulse/MTBF characterization and foundry signoff.
 - [x] Workload activity-based power estimate for the routed default memory-backed top.
 - [ ] Map/time the complete classifier elaboration and postprocessing for a concrete target.
 - [x] Flow implementation-transformation LEC and routed functional gate tests.

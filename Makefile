@@ -13,8 +13,12 @@ verify regression:
 python-test:
 	$(RUN) --suite python
 
-sim advanced coverage uvm sva gemm memory memory-sva memory-bench memory-synth inference gate architecture physical model axi:
+sim advanced coverage uvm sva gemm memory memory-sva memory-bench memory-synth inference gate architecture model axi:
 	$(RUN) --suite $@
+
+PHYSICAL_DESIGN ?= memory_gemm
+physical:
+	$(RUN) --suite physical --physical-design $(PHYSICAL_DESIGN)
 
 .PHONY: postroute pvt
 postroute:
