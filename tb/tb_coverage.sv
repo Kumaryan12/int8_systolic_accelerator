@@ -283,7 +283,10 @@ module systolic_coverage #(
     // 11. FINAL FUNCTIONAL COVERAGE REPORT
     // ========================================================
 
-    final begin
+    // Report explicitly before $finish: older Icarus releases do not reliably
+    // execute loops over coverage arrays from final blocks.
+    task report_coverage;
+    begin
 
         covered_bins = 0;
         sign_pairs_covered = 0;
@@ -378,6 +381,7 @@ module systolic_coverage #(
         $display("========================================");
 
     end
+    endtask
 
 endmodule
 
@@ -409,5 +413,10 @@ module tb_coverage #(parameter integer RANDOM_CASES = 200);
         .b_matrix(testbench.b_matrix),
         .c_matrix(testbench.c_matrix)
     );
+
+    initial begin
+        @(testbench.verification_complete);
+        coverage.report_coverage();
+    end
 
 endmodule

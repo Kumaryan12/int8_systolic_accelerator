@@ -4,6 +4,10 @@ on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
 
+concurrency:
+  group: verification-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   regression:
     runs-on: ubuntu-24.04
@@ -44,4 +48,6 @@ jobs:
             build/run_*/summary.json
             build/run_*/*.log
             build/run_*/*.info
+            build/run_*/inference.json
+            build/run_*/inference.vcd
           if-no-files-found: warn

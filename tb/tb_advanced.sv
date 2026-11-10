@@ -39,6 +39,7 @@ module tb_advanced;
     integer hold_checks = 0;
     integer reset_checks = 0;
     integer latency_checks = 0;
+    event verification_complete;
 
     // Scenario counters
     integer negative_seen = 0;
@@ -551,6 +552,8 @@ module tb_advanced;
         $display("NOTE: Full functional coverage not yet measured.");
         $display("========================================");
 
+        -> verification_complete;
+        #1;
         $finish;
 
     end

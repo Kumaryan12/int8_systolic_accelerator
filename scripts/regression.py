@@ -152,7 +152,7 @@ class Regression:
                  str(self.directory / "coverage.info")] + data)
 
     def synthesis(self):
-        for variant in ("generic", "sky130_map", "sky130_timing_clean", "tiled_gemm"):
+        for variant in ("generic", "sky130_map", "sky130_timing_clean", "tiled_gemm", "requantize"):
             original = (ROOT / f"synth/{variant}.ys").read_text()
             script = re.sub(r"(?<![/\w])build/([\w.]+)", lambda match: f'"{self.directory / match[1]}"', original)
             path = self.directory / f"{variant}.ys"
@@ -160,11 +160,12 @@ class Regression:
             log = self.run(f"synth_{variant}", [self.tool("yosys"), "-Q", "-s", str(path)],
                      [r"Found and reported 0 problems", r"End of script"])
             name = {"generic": "systolic_netlist", "sky130_map": "systolic_sky130",
-                    "sky130_timing_clean": "systolic_sky130_clean", "tiled_gemm": "tiled_gemm_netlist"}[variant]
+                    "sky130_timing_clean": "systolic_sky130_clean", "tiled_gemm": "tiled_gemm_netlist",
+                    "requantize": "requantize_netlist"}[variant]
             netlist = json.loads((self.directory / f"{name}.json").read_text())
             area = re.search(r"Chip area for module.*: ([\d.]+)", log)
             self.report.setdefault("synthesis", {})[variant] = {
-                "cells": len(netlist["modules"]["tiled_gemm" if variant == "tiled_gemm" else "systolic_array"]["cells"]),
+                "cells": len(netlist["modules"][variant if variant in ("tiled_gemm", "requantize") else "systolic_array"]["cells"]),
                 "cell_area_um2": float(area[1]) if area else None,
             }
             self.save()
@@ -246,6 +247,9 @@ class Regression:
             self.sva()
         if suite in ("gemm", "verify"):
             self.gemm()
+        if suite in ("inference", "verify"):
+            from inference_demo import run_demo
+            run_demo(self)
         if suite in ("synth", "ppa", "gate"):
             self.synthesis()
         if suite in ("ppa", "gate"):
@@ -258,7 +262,7 @@ class Regression:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "synth", "ppa", "gate", "architecture"], default="verify")
+    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "inference", "synth", "ppa", "gate", "architecture"], default="verify")
     parser.add_argument("--seeds", type=int, nargs="+", default=[20261110])
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--sizes", type=int, nargs="+", default=[2, 3, 4, 8])
