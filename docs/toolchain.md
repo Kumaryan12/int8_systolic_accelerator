@@ -35,6 +35,8 @@ make gemm
 make inference
 make memory
 make memory-synth
+make memory-sva
+make memory-bench
 make verify SEEDS="2026 20261110 42" RANDOM_CASES=200 JOBS=2
 make synth
 make sta

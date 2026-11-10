@@ -20,7 +20,7 @@
 - [x] Specify a synchronous RAM organization and a tagged valid/ready host stream.
 - [x] Add a narrow-interface successor to the wide register-backed wrapper.
 - [x] Add two job slots and overlap input/output transfers with computation.
-- [ ] Measure initiation interval, useful utilization and transfer-inclusive throughput.
+- [x] Measure compute-completion interval and transfer-inclusive batch cycles for serial/overlapped hosts.
 
 ## Implementation and verification work still open
 

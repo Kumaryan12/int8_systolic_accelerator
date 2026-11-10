@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1050" height="518" viewBox="0 0 1050 518">
+<rect width="1050" height="518" fill="#f8fafc"/>
+<g font-family="Arial,sans-serif" font-size="13" fill="#172033">
+<text x="24" y="30" font-size="21" font-weight="bold">Memory-backed RTL layer — recorded host transfers</text>
+<text x="24" y="54">3×5 by 5×7 · 50 input words · 21 output words · receiver backpressure</text>
+<path d="M140.00 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="140.00" y="506" text-anchor="middle">0 ns</text>
+<path d="M286.67 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="286.67" y="506" text-anchor="middle">400 ns</text>
+<path d="M433.33 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="433.33" y="506" text-anchor="middle">800 ns</text>
+<path d="M580.00 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="580.00" y="506" text-anchor="middle">1200 ns</text>
+<path d="M726.67 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="726.67" y="506" text-anchor="middle">1600 ns</text>
+<path d="M873.33 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="873.33" y="506" text-anchor="middle">2000 ns</text>
+<path d="M1020.00 78 V483" stroke="#dbe2ea" stroke-dasharray="3 4"/>
+<text x="1020.00" y="506" text-anchor="middle">2400 ns</text>
+<text x="24" y="111">input valid</text>
+<path d="M140.00,121 H140.00 V121 H154.67 V95 H338.00 V121 H1020.00" fill="none" stroke="#1761c5" stroke-width="2"/>
+<text x="24" y="165">input ready</text>
+<path d="M140.00,175 H140.00 V175 H151.00 V149 H336.17 V175 H977.83 V149 H1020.00" fill="none" stroke="#1761c5" stroke-width="2"/>
+<text x="24" y="219">engine busy</text>
+<path d="M140.00,229 H140.00 V229 H141.83 V229 H339.83 V203 H882.50 V229 H1020.00" fill="none" stroke="#1761c5" stroke-width="2"/>
+<text x="24" y="273">compute done</text>
+<path d="M140.00,283 H140.00 V283 H141.83 V283 H882.50 V257 H886.17 V283 H1020.00" fill="none" stroke="#1761c5" stroke-width="2"/>
+<text x="24" y="327">output valid</text>
+<path d="M140.00,337 H140.00 V337 H141.83 V337 H889.83 V311 H977.83 V337 H1020.00" fill="none" stroke="#1761c5" stroke-width="2"/>
+<text x="24" y="381">output ready</text>
+<path d="M140.00,391 H140.00 V391 H158.33 V365 H165.67 V391 H169.33 V365 H191.33 V391 H195.00 V365 H217.00 V391 H220.67 V365 H242.67 V391 H246.33 V365 H268.33 V391 H272.00 V365 H294.00 V391 H297.67 V365 H319.67 V391 H323.33 V365 H345.33 V391 H349.00 V365 H371.00 V391 H374.67 V365 H396.67 V391 H400.33 V365 H422.33 V391 H426.00 V365 H448.00 V391 H451.67 V365 H473.67 V391 H477.33 V365 H499.33 V391 H503.00 V365 H525.00 V391 H528.67 V365 H550.67 V391 H554.33 V365 H576.33 V391 H580.00 V365 H602.00 V391 H605.67 V365 H627.67 V391 H631.33 V365 H653.33 V391 H657.00 V365 H679.00 V391 H682.67 V365 H704.67 V391 H708.33 V365 H730.33 V391 H734.00 V365 H756.00 V391 H759.67 V365 H781.67 V391 H785.33 V365 H807.33 V391 H811.00 V365 H833.00 V391 H836.67 V365 H858.67 V391 H862.33 V365 H884.33 V391 H888.00 V365 H910.00 V391 H913.67 V365 H935.67 V391 H939.33 V365 H961.33 V391 H965.00 V365 H979.67 V391 H1020.00" fill="none" stroke="#1761c5" stroke-width="2"/>
+<text x="24" y="435">tile busy</text>
+<path d="M140.00,445 H140.00 V445 H141.83 V445 H405.83 V419 H442.50 V445 H512.17 V419 H548.83 V445 H677.17 V419 H713.83 V445 H783.50 V419 H820.17 V445 H1020.00" fill="none" stroke="#1761c5" stroke-width="2"/>
+</g></svg>

@@ -51,4 +51,7 @@ jobs:
             build/run_*/inference.json
             build/run_*/inference.vcd
             build/run_*/inference.svg
+            build/run_*/memory_inference.svg
+            build/run_*/memory_inference.vcd
+            build/run_*/memory_benchmarks.json
           if-no-files-found: warn

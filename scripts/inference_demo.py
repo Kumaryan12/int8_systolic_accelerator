@@ -56,6 +56,28 @@ def run_demo(run):
     expected = [(value,requantize_int(value,multiplier,shift,relu=True)) for row in golden_accum for value in row]
     if actual != expected:
         raise RuntimeError("RTL accumulator or requantized output differs from Python reference")
+    # Run the same quantized layer through the narrow, RAM-backed host path.
+    memory_output=run.directory/"memory_inference_output.txt"
+    memory_executable=run.directory/"memory_inference_sim"
+    run.run("memory_inference_build",[run.tool("iverilog"),"-g2012","-s","tb_memory_inference","-o",str(memory_executable),
+            "rtl/mac_pe.sv","rtl/systolic_array.sv","rtl/sync_dp_ram.sv","rtl/memory_gemm.sv",
+            "rtl/requantize.sv","tb/tb_memory_inference.sv"])
+    memory_log=run.run("memory_inference_rtl",[run.tool("vvp"),str(memory_executable),f"+INPUT={inputs}",
+                      f"+OUTPUT={memory_output}",f"+WAVE={run.directory/'memory_inference.vcd'}"],
+                      [r"PASS: Memory inference outputs=21"])
+    memory_actual=[tuple(map(int,line.split())) for line in memory_output.read_text().splitlines()]
+    if memory_actual!=expected:
+        raise RuntimeError("Memory-backed RTL inference differs from the integer reference")
+    import re
+    transfer_metrics={key:int(value) for key,value in re.findall(r"(\w+)=(\d+)",re.search(r"MEMORY_INFERENCE .*",memory_log)[0])}
+    root="tb_memory_inference"
+    waveform_svg(run.directory/"memory_inference.vcd",run.directory/"memory_inference.svg",
+                 signals=[(f"{root}.{name}",label) for name,label in
+                          (("load_valid","input valid"),("load_ready","input ready"),("busy","engine busy"),
+                           ("compute_done","compute done"),("result_valid","output valid"),("result_ready","output ready"),
+                           ("dut.tile_busy","tile busy"))],
+                 title="Memory-backed RTL layer — recorded host transfers",
+                 subtitle="3×5 by 5×7 · 50 input words · 21 output words · receiver backpressure")
     errors = [abs(actual[r*7+c][1]*scale_out-reference[r][c]) for r in range(3) for c in range(7)]
     metrics = {"operation": "linear layer without bias, followed by ReLU", "shape_M_K_N": [3,5,7],
                "integer_outputs_checked": len(actual), "integer_mismatches": 0,
@@ -64,6 +86,8 @@ def run_demo(run):
                "multiplier": multiplier, "shift": shift,
                "max_absolute_error": max(errors), "rmse": math.sqrt(sum(e*e for e in errors)/len(errors)),
                "max_absolute_error_limit": 0.15,
+               "memory_integer_outputs_checked":len(memory_actual),"memory_integer_mismatches":0,
+               "memory_host_cycles":transfer_metrics,
                "float_reference": reference,
                "rtl_dequantized": [[actual[r*7+c][1]*scale_out for c in range(7)] for r in range(3)]}
     (run.directory / "inference.json").write_text(json.dumps(metrics,indent=2)+"\n")

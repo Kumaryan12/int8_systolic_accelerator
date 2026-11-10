@@ -40,3 +40,10 @@ The example calibrates output scale from its deterministic reference values
 and uses synthetic inputs/weights. It is an arithmetic demonstration, not a
 trained model benchmark. A real deployment needs representative calibration,
 model-specific bias/activation rules and task-level accuracy evaluation.
+
+The same command also runs the identical operands through `memory_gemm`, sends
+50 narrow input words, receives 21 tagged output words with backpressure, and
+uses one streaming requantizer. It compares every accumulator/INT8 output with
+the same Python reference and exports `memory_inference.vcd/.svg`. This path's
+225 measured transfer-inclusive clocks are separate from the packed-bus path's
+48 compute/dispatch clocks. See [checkpoint 8](results/checkpoint_8.md).

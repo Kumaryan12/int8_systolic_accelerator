@@ -23,6 +23,18 @@ module tb_memory_gemm #(
     integer input_stalls=0,output_stalls=0,load_overlap=0,output_overlap=0;
     integer first_compute=-1,last_compute=-1,compute_intervals=0;
     memory_gemm #(.M(M),.K(K),.N(N),.TILE(TILE)) dut(.*);
+`ifdef VERILATOR
+    memory_stream_sva #(.OUT_W(OW),.INDEX_W(IW),.C_WORDS(CW)) stream_properties (
+        .clk(clk),.rst_n(rst_n),.load_valid(load_valid),.load_ready(load_ready),
+        .load_bank(load_bank),.load_last(load_last),.load_data(load_data),.load_tag(load_tag),
+        .result_valid(result_valid),.result_ready(result_ready),.result_bank(result_bank),
+        .result_last(result_last),.result_data(result_data),.result_index(result_index),.result_tag(result_tag),
+        .busy(busy),.compute_done(compute_done),.result_owned(dut.slot_state[result_bank]==3'd4),
+        .a_collision(dut.a_write_en && dut.a_read_en && dut.a_memory.wr_addr==dut.a_memory.rd_addr),
+        .b_collision(dut.b_write_en && dut.b_read_en && dut.b_memory.wr_addr==dut.b_memory.rd_addr),
+        .c_collision(dut.c_write_en && dut.c_read_en && dut.c_memory.wr_addr==dut.c_memory.rd_addr)
+    );
+`endif
 
     function integer rand_data;
         data_rng=data_rng*32'd1664525+32'd1013904223;

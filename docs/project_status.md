@@ -16,6 +16,7 @@ matrices, and the small quantized layer example.
 | 5 | Hardware requantization/ReLU, 1,900 boundary/random vectors, Python/RTL layer comparison | [Results](results/checkpoint_5.md) |
 | 6 | Architecture explanation, recorded waveform illustration, updated verification plan, scope and resume wording | [Architecture](architecture.md) |
 | 7 | Three synchronous RAMs, two tagged job slots, narrow host streams, backpressure and reset cancellation | [Results](results/checkpoint_7.md) |
+| 8 | Measured serial/overlapped schedules, stream assertions and the same layer through the memory-backed interface | [Results](results/checkpoint_8.md) |
 
 The project is stored in the private GitHub repository
 [Kumaryan12/int8_systolic_accelerator](https://github.com/Kumaryan12/int8_systolic_accelerator).
@@ -46,8 +47,8 @@ by Git; curated checkpoint summaries are committed.
    analysis. Add corner coverage and reset recovery/removal analysis. Current
    area and frequency estimates are synthesis/pre-layout results only.
 2. **Memory integration:** the narrow valid/ready interface and two-job-slot
-   RAM architecture are implemented. Measure overlap/transfer-inclusive cost,
-   connect the layer demo, and map the inferred memories to a real macro/BRAM
+   RAM architecture, transfer-inclusive benchmarks and layer demo are implemented.
+   Map the inferred memories to a real macro/BRAM
    or add an AXI/DMA adapter for a concrete target. The old packed-bus wrapper
    remains a reference and is substantially more expensive in generic logic.
 3. **Verification closure:** analyze uncovered expression/branch cases, add

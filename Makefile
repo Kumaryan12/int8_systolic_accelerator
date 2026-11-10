@@ -4,7 +4,7 @@ JOBS ?= 2
 RANDOM_CASES ?= 200
 RUN = $(PYTHON) scripts/regression.py --seeds $(SEEDS) --jobs $(JOBS) --random-cases $(RANDOM_CASES)
 
-.PHONY: verify regression python-test sim advanced coverage uvm sva gemm memory memory-synth inference synth sta gate architecture
+.PHONY: verify regression python-test sim advanced coverage uvm sva gemm memory memory-sva memory-bench memory-synth inference synth sta gate architecture
 
 # Each invocation creates a separate build/run_* directory and summary.json.
 verify regression:
@@ -13,7 +13,7 @@ verify regression:
 python-test:
 	$(RUN) --suite python
 
-sim advanced coverage uvm sva gemm memory memory-synth inference gate architecture:
+sim advanced coverage uvm sva gemm memory memory-sva memory-bench memory-synth inference gate architecture:
 	$(RUN) --suite $@
 
 synth:

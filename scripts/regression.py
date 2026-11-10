@@ -213,6 +213,40 @@ class Regression:
         self.report["memory_generic_cells"]=len(generic)
         self.save()
 
+    def memory_sva(self):
+        obj=self.directory/"memory_sva_obj"
+        self.run("memory_sva_build",[self.tool("verilator"),"--binary","--timing","--assert","-Wno-fatal",
+                 "--top-module","tb_memory_gemm","--Mdir",str(obj),"-j",str(self.args.jobs)]
+                 +MEMORY_RTL+["tb/memory_stream_sva.sv","tb/tb_memory_gemm.sv"],timeout=900)
+        for seed in self.args.seeds:
+            self.run(f"memory_sva_seed{seed}",[str(obj/"Vtb_memory_gemm"),f"+SEED={seed}"],[r"PASS: Memory GEMM"])
+
+    def memory_benchmark(self):
+        benchmarks=[]
+        for m,k,n in ((3,5,7),(8,8,8),(9,2,11)):
+            modes={}
+            for overlap in (0,1):
+                label=f"bench_{m}x{k}x{n}_overlap{overlap}"
+                executable=self.directory/label
+                self.run(f"{label}_build",[self.tool("iverilog"),"-g2012","-s","tb_memory_gemm","-o",str(executable),
+                         f"-Ptb_memory_gemm.M={m}",f"-Ptb_memory_gemm.K={k}",f"-Ptb_memory_gemm.N={n}",
+                         f"-Ptb_memory_gemm.OVERLAP={overlap}","-Ptb_memory_gemm.STALLS=0"]
+                         +MEMORY_RTL+["tb/tb_memory_gemm.sv"])
+                log=self.run(label,[self.tool("vvp"),str(executable),"+SEED=20261110"],[r"PASS: Memory GEMM"])
+                metrics={key:int(value) for key,value in re.findall(r"(\w+)=(\d+)",re.search(r"METRIC .*",log)[0])}
+                modes["overlapped" if overlap else "serial"]=metrics
+            if modes["overlapped"]["cycles"]>=modes["serial"]["cycles"]:
+                raise RuntimeError("Overlapped host schedule did not reduce batch cycles")
+            pipelined=modes["overlapped"]
+            modes.update(shape=[m,k,n],seed=20261110,cycle_reduction_ratio=1-pipelined["cycles"]/modes["serial"]["cycles"],
+                         schedule_speedup=modes["serial"]["cycles"]/pipelined["cycles"],
+                         useful_MACs_per_clock=pipelined["jobs"]*m*k*n/pipelined["cycles"],
+                         mean_compute_completion_interval=pipelined["compute_interval_sum"]/(pipelined["jobs"]-1))
+            benchmarks.append(modes)
+        self.report["memory_benchmarks"]=benchmarks
+        self.save()
+        (self.directory/"memory_benchmarks.json").write_text(json.dumps(benchmarks,indent=2)+"\n")
+
     def synthesis(self):
         for variant in ("generic", "sky130_map", "sky130_timing_clean", "tiled_gemm", "requantize"):
             original = (ROOT / f"synth/{variant}.ys").read_text()
@@ -311,6 +345,10 @@ class Regression:
             self.gemm()
         if suite in ("memory", "verify"):
             self.memory()
+        if suite in ("memory-sva", "verify"):
+            self.memory_sva()
+        if suite in ("memory-bench","verify"):
+            self.memory_benchmark()
         if suite=="memory-synth":
             self.memory_synthesis()
         if suite in ("inference", "verify"):
@@ -328,7 +366,7 @@ class Regression:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "memory", "memory-synth", "inference", "synth", "ppa", "gate", "architecture"], default="verify")
+    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "memory", "memory-sva", "memory-bench", "memory-synth", "inference", "synth", "ppa", "gate", "architecture"], default="verify")
     parser.add_argument("--seeds", type=int, nargs="+", default=[20261110])
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--sizes", type=int, nargs="+", default=[2, 3, 4, 8])

@@ -5,8 +5,10 @@ from pathlib import Path
 import re
 
 
-def waveform_svg(vcd_path, output_path):
-    signals = [
+def waveform_svg(vcd_path, output_path, signals=None,
+                 title="Tiled RTL inference — recorded control waveform",
+                 subtitle="3×5 by 5×7 · four tile jobs · output valid 48 clocks after acceptance"):
+    signals = signals or [
         ("tb_inference.rst_n", "reset_n"),
         ("tb_inference.start", "host start"),
         ("tb_inference.busy", "host busy"),
@@ -45,14 +47,17 @@ def waveform_svg(vcd_path, output_path):
     width, left, top, row = 1050, 140, 95, 54
     right = width-30
     height = top+row*len(signals)+45
-    xmax = ((time_ps//50000)+1)*50000
+    step=50000
+    while time_ps/step>11:
+        step*=2
+    xmax = ((time_ps//step)+1)*step
     x = lambda tick: left+(right-left)*tick/xmax
     svg = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
            f'<rect width="{width}" height="{height}" fill="#f8fafc"/>',
            '<g font-family="Arial,sans-serif" font-size="13" fill="#172033">',
-           '<text x="24" y="30" font-size="21" font-weight="bold">Tiled RTL inference — recorded control waveform</text>',
-           '<text x="24" y="54">3×5 by 5×7 · four tile jobs · output valid 48 clocks after acceptance</text>']
-    for tick in range(0,xmax+1,50000):
+           f'<text x="24" y="30" font-size="21" font-weight="bold">{escape(title)}</text>',
+           f'<text x="24" y="54">{escape(subtitle)}</text>']
+    for tick in range(0,xmax+1,step):
         xp=x(tick)
         svg += [f'<path d="M{xp:.2f} 78 V{height-35}" stroke="#dbe2ea" stroke-dasharray="3 4"/>',
                 f'<text x="{xp:.2f}" y="{height-12}" text-anchor="middle">{tick//1000} ns</text>']
