@@ -1,0 +1,9 @@
+{
+  "image": "openroad/orfs@sha256:76fdfc62aa2ad5fdc373c38645d02be00ad346e7a1a65dff826a7a9f75eadf7d",
+  "platform": "linux/amd64",
+  "process": "sky130hd",
+  "design": "memory_gemm",
+  "flow_directory": "/OpenROAD-flow-scripts/flow",
+  "clock_period_ns": 20.0,
+  "storage_mapping": "standard-cell fallback; no hard SRAM macros"
+}

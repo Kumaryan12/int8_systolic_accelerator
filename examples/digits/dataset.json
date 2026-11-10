@@ -1,0 +1,17 @@
+{
+  "name": "UCI Optical Recognition of Handwritten Digits",
+  "authors": "E. Alpaydin and C. Kaynak (1998)",
+  "doi": "https://doi.org/10.24432/C50P49",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "source_page": "https://archive.ics.uci.edu/dataset/80/optical+recognition+of+handwritten+digits",
+  "url": "https://archive.ics.uci.edu/static/public/80/optical%2Brecognition%2Bof%2Bhandwritten%2Bdigits.zip",
+  "sha256": "0d7b054fea010270e9b3f06411c654c5e59547732ad626381980baffe0a23fb0",
+  "members": {
+    "train": {"name": "optdigits.tra", "rows": 3823, "sha256": "e1b683cc211604fe8fd8c4417e6a69f31380e0c61d4af22e93cc21e9257ffedd"},
+    "test": {"name": "optdigits.tes", "rows": 1797, "sha256": "6ebb3d2fee246a4e99363262ddf8a00a3c41bee6014c373ed9d9216ba7f651b8"}
+  },
+  "normalization": "pixels / 16, followed by a constant 1 bias feature",
+  "training": {"epochs": 35, "seed": 20261110, "initial_learning_rate": 0.05, "l2": 0.0001},
+  "rtl_selection": "all 1797 official test images in source order, with three zero-padded rows in the last four-image batch"
+}

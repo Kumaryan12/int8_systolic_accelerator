@@ -31,7 +31,7 @@ class Regression:
                        "random_cases": args.random_cases, "sizes": getattr(args, "sizes", [4]),
                        "tools": {}, "steps": [], "status": "RUNNING"}
         sources = [ROOT / "Makefile"]
-        for folder in ("rtl", "tb", "scripts", "synth", "timing", "constraints", "lib"):
+        for folder in ("rtl", "tb", "scripts", "synth", "timing", "constraints", "lib", "physical", "examples"):
             sources.extend(path for path in (ROOT / folder).rglob("*")
                            if path.is_file() and "__pycache__" not in path.parts)
         self.report["source_sha256"] = {
@@ -362,11 +362,17 @@ class Regression:
             self.timing()
         if suite == "architecture":
             self.architecture()
+        if suite=="physical":
+            from physical_flow import run_physical
+            run_physical(self)
+        if suite=="model":
+            from digit_model import run_model
+            run_model(self)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "memory", "memory-sva", "memory-bench", "memory-synth", "inference", "synth", "ppa", "gate", "architecture"], default="verify")
+    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "memory", "memory-sva", "memory-bench", "memory-synth", "inference", "synth", "ppa", "gate", "architecture", "physical", "model"], default="verify")
     parser.add_argument("--seeds", type=int, nargs="+", default=[20261110])
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--sizes", type=int, nargs="+", default=[2, 3, 4, 8])

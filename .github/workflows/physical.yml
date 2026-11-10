@@ -1,0 +1,25 @@
+name: SKY130 physical flow
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  physical:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: make physical
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sky130-physical-evidence
+          path: |
+            build/run_*/summary.json
+            build/run_*/physical_metrics.json
+            build/run_*/*.log
+            build/run_*/logs/
+            build/run_*/reports/
+            build/run_*/results/sky130hd/int8_memory_gemm/base/6_final.*
