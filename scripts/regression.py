@@ -18,6 +18,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 RTL = ["rtl/mac_pe.sv", "rtl/systolic_array.sv"]
 ADVANCED = ["tb/systolic_protocol_checker.sv", "tb/tb_advanced.sv"]
+MEMORY_RTL = RTL + ["rtl/sync_dp_ram.sv", "rtl/memory_gemm.sv"]
 
 
 class Regression:
@@ -173,6 +174,45 @@ class Regression:
         self.run("lcov_export", [self.tool("verilator_coverage"), "--write-info",
                  str(self.directory / "coverage.info")] + data)
 
+    def memory(self):
+        executable = self.directory / "ram_sim"
+        self.run("ram_build", [self.tool("iverilog"), "-g2012", "-s", "tb_sync_dp_ram", "-o", str(executable),
+                 "rtl/sync_dp_ram.sv", "tb/tb_sync_dp_ram.sv"])
+        self.run("ram_test", [self.tool("vvp"), str(executable)], [r"PASS: Synchronous RAM"])
+        results = []
+        shapes = ((1,1,1), (3,5,7), (4,4,4), (7,9,5), (8,8,8), (9,2,11), (2,17,3))
+        for m,k,n in shapes:
+            label=f"memory_{m}x{k}x{n}"
+            executable=self.directory/label
+            self.run(f"{label}_build", [self.tool("iverilog"), "-g2012", "-s", "tb_memory_gemm", "-o", str(executable),
+                     f"-Ptb_memory_gemm.M={m}", f"-Ptb_memory_gemm.K={k}", f"-Ptb_memory_gemm.N={n}"]
+                     + MEMORY_RTL + ["tb/tb_memory_gemm.sv"])
+            for seed in self.args.seeds:
+                log=self.run(f"{label}_seed{seed}", [self.tool("vvp"), str(executable), f"+SEED={seed}"],
+                             [r"PASS: Memory GEMM", r"jobs=8"])
+                metrics={key:int(value) for key,value in re.findall(r"(\w+)=(\d+)", re.search(r"METRIC .*",log)[0])}
+                results.append({"shape":[m,k,n],"seed":seed,**metrics})
+        self.report["memory_tests"]=results
+        self.save()
+
+    def memory_synthesis(self):
+        for variant in ("memory_gemm", "memory_gemm_generic"):
+            source=(ROOT/f"synth/{variant}.ys").read_text()
+            script=re.sub(r"(?<![/\w])build/([\w.]+)",lambda match:f'"{self.directory/match[1]}"',source)
+            path=self.directory/f"{variant}.ys"
+            path.write_text(script)
+            self.run(f"synth_{variant}",[self.tool("yosys"),"-Q","-s",str(path)],
+                     [r"Found and reported 0 problems",r"End of script"])
+        retained=json.loads((self.directory/"memory_gemm_ram.json").read_text())["modules"]["memory_gemm"]["cells"]
+        memories={name:cell["parameters"] for name,cell in retained.items() if cell["type"]=="$mem_v2"}
+        if len(memories)!=3 or any(int(p["RD_CLK_ENABLE"],2)!=1 or int(p["WR_CLK_ENABLE"],2)!=1 for p in memories.values()):
+            raise RuntimeError("Expected three synchronous-read/write inferred memories")
+        self.report["inferred_memories"]={name:{key:int(p[key],2) for key in ("WIDTH","SIZE","RD_PORTS","WR_PORTS")}
+                                          for name,p in memories.items()}
+        generic=json.loads((self.directory/"memory_gemm_generic.json").read_text())["modules"]["memory_gemm"]["cells"]
+        self.report["memory_generic_cells"]=len(generic)
+        self.save()
+
     def synthesis(self):
         for variant in ("generic", "sky130_map", "sky130_timing_clean", "tiled_gemm", "requantize"):
             original = (ROOT / f"synth/{variant}.ys").read_text()
@@ -269,6 +309,10 @@ class Regression:
             self.sva()
         if suite in ("gemm", "verify"):
             self.gemm()
+        if suite in ("memory", "verify"):
+            self.memory()
+        if suite=="memory-synth":
+            self.memory_synthesis()
         if suite in ("inference", "verify"):
             from inference_demo import run_demo
             run_demo(self)
@@ -284,7 +328,7 @@ class Regression:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "inference", "synth", "ppa", "gate", "architecture"], default="verify")
+    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "memory", "memory-synth", "inference", "synth", "ppa", "gate", "architecture"], default="verify")
     parser.add_argument("--seeds", type=int, nargs="+", default=[20261110])
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--sizes", type=int, nargs="+", default=[2, 3, 4, 8])

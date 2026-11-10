@@ -15,6 +15,7 @@ matrices, and the small quantized layer example.
 | 4 | RTL tiled GEMM, tail padding, wider accumulation and reset recovery | [Results](results/checkpoint_4.md) |
 | 5 | Hardware requantization/ReLU, 1,900 boundary/random vectors, Python/RTL layer comparison | [Results](results/checkpoint_5.md) |
 | 6 | Architecture explanation, recorded waveform illustration, updated verification plan, scope and resume wording | [Architecture](architecture.md) |
+| 7 | Three synchronous RAMs, two tagged job slots, narrow host streams, backpressure and reset cancellation | [Results](results/checkpoint_7.md) |
 
 The project is stored in the private GitHub repository
 [Kumaryan12/int8_systolic_accelerator](https://github.com/Kumaryan12/int8_systolic_accelerator).
@@ -35,6 +36,8 @@ by Git; curated checkpoint summaries are committed.
 - Requantization: 1,900 bit-exact vectors; layer demo: 21 exact integer outputs,
   48 clocks, max float-reference error 0.0215193, RMSE 0.00751376.
 - Clean mapped base tile: three-seed functional gate tests and pre-layout STA.
+- Memory-backed successor: 168 GEMMs, 5,808 output checks, and three retained
+  synchronous 1R1W memories; default generic fallback maps to 20,025 cells.
 
 ## Remaining work
 
@@ -42,10 +45,11 @@ by Git; curated checkpoint summaries are committed.
    placement, clock-tree synthesis, routing, parasitic extraction and power
    analysis. Add corner coverage and reset recovery/removal analysis. Current
    area and frequency estimates are synthesis/pre-layout results only.
-2. **Memory architecture:** replace broad register-backed buses with a defined
-   SRAM/BRAM and host/DMA interface; add buffering and transfer/computation
-   overlap. The current hardware scheduler is functional but expensive: its
-   default wrapper synthesizes to about 134,088 generic cells, not SKY130 cells.
+2. **Memory integration:** the narrow valid/ready interface and two-job-slot
+   RAM architecture are implemented. Measure overlap/transfer-inclusive cost,
+   connect the layer demo, and map the inferred memories to a real macro/BRAM
+   or add an AXI/DMA adapter for a concrete target. The old packed-bus wrapper
+   remains a reference and is substantially more expensive in generic logic.
 3. **Verification closure:** analyze uncovered expression/branch cases, add
    justified coverage goals, consider formal equivalence and reset assumptions,
    and expand supported parameter/configuration validation. Passing defined bins

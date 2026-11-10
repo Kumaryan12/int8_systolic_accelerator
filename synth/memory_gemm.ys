@@ -1,0 +1,13 @@
+# Retain RAM cells and clocked read ports for a target-specific memory mapper.
+read_verilog -sv rtl/mac_pe.sv rtl/systolic_array.sv rtl/sync_dp_ram.sv rtl/memory_gemm.sv
+hierarchy -check -top memory_gemm
+proc
+flatten
+opt
+memory_dff
+memory_collect
+opt_clean
+check -assert
+stat -width
+write_json build/memory_gemm_ram.json
+write_verilog -noattr build/memory_gemm_ram.v

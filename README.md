@@ -26,6 +26,7 @@ See [toolchain setup](docs/toolchain.md) for versions and individual commands.
 | Assertions and coverage | Procedural checker, six temporal properties, 14 scenario bins and nine sign-cross bins; code coverage/LCOV exports |
 | UVM | 208 completed transactions, 3,328 output checks and one reset abort per seed; busy-start rejection and recovery |
 | Hardware tiled GEMM | Seven shapes, three seeds, 777 completed GEMMs; padding and cross-tile accumulation |
+| Memory-backed GEMM | Two tagged job slots, three synchronous RAMs, narrow valid/ready streams; 168 checked GEMMs |
 | Integer postprocessing | 1,900 Python/RTL comparisons of rounding, saturation, zero points and ReLU |
 | RTL layer demo | 21 exact integer outputs; 48 clocks; max float-reference error 0.02152 |
 | Base-tile implementation | SKY130 mapping, functional gate simulation and pre-layout OpenSTA; array-size area comparison |
@@ -41,6 +42,7 @@ are packed row-major buses, with one outstanding job.
 
 [Architecture and performance accounting](docs/architecture.md) ·
 [Hardware GEMM contract](docs/hardware_gemm.md) ·
+[Memory and host interface](docs/memory_interface.md) ·
 [Quantization contract](docs/quantization.md)
 
 ## Commands
@@ -48,6 +50,8 @@ are packed row-major buses, with one outstanding job.
 ```sh
 make verify                    # Complete functional regression from source
 make inference                 # Python/RTL layer comparison, JSON, VCD and SVG
+make memory                    # Memory/stream, stalls, reset and overlap tests
+make memory-synth              # Check inferred RAM ports and generic fallback
 make gate                      # Rebuild and test the mapped base-tile netlist
 make sta                       # Synthesis, gate tests and OpenSTA (STA on PATH)
 make architecture              # N=2,3,4,8 mapped cell-count/area sweep
@@ -66,8 +70,9 @@ and no extracted wires, OpenSTA reports **+2.872 ns setup slack** at a 10 ns
 clock target and an estimated minimum period of **7.13 ns**. These results
 apply to the base tile, not the tiled wrapper plus output postprocessing.
 
-The prototype has no placed/routed implementation or power measurement. It
-uses register-backed operand storage rather than SRAM/DMA, and the layer demo
-uses synthetic inputs and weights. See [current status](docs/project_status.md),
+The prototype has no placed/routed implementation or power measurement. Its
+new memory path infers synchronous RAMs; physical SRAM/BRAM mapping and an
+AXI/DMA adapter remain target-specific work. The layer demo uses synthetic
+inputs and weights. See [current status](docs/project_status.md),
 [verification plan](docs/verification_plan.md), [roadmap](docs/roadmap.md), and
 [checkpoint results](docs/results/) for completed work and remaining milestones.

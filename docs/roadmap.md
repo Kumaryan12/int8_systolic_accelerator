@@ -17,9 +17,9 @@
 
 ## Next architecture milestone — memory and integration
 
-- [ ] Specify SRAM/BRAM organization and a host/transfer interface.
-- [ ] Replace the expensive wide register-backed input/output implementation.
-- [ ] Add double buffering and overlap transfer with computation.
+- [x] Specify a synchronous RAM organization and a tagged valid/ready host stream.
+- [x] Add a narrow-interface successor to the wide register-backed wrapper.
+- [x] Add two job slots and overlap input/output transfers with computation.
 - [ ] Measure initiation interval, useful utilization and transfer-inclusive throughput.
 
 ## Implementation and verification work still open
