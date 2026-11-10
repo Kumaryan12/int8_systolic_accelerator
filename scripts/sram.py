@@ -27,13 +27,20 @@ def prepare_model(directory):
     return path
 
 
-def run_sram(run):
+def run_sram(run,synthesis_only=False):
     model=prepare_model(run.directory)
     run.report['sram_sources']={'manifest':json.loads((ROOT/'third_party/sky130_sram/manifest.json').read_text()),
                                 'simulation_model_sha256':hashlib.sha256(model.read_bytes()).hexdigest()}
     run.save()
     sources=['rtl/mac_pe.sv','rtl/systolic_array.sv','rtl/sync_dp_ram.sv','rtl/sky130_dp_ram.sv',
              'rtl/memory_gemm.sv','rtl/reset_sync.sv','rtl/axi_gemm.sv',str(model)]
+    if synthesis_only:
+        macros,count=synthesize_sram(run,sources[:-1])
+        run.report['sram']={'macro':NAME,'instances':macros,'generic_cells_including_macros':count,
+                            'logic_mapping':'generic techmap without ABC; hard-macro binding only'}
+        (run.directory/'sram_metrics.json').write_text(json.dumps(run.report['sram'],indent=2)+'\n')
+        run.save()
+        return
     executable=run.directory/'sram_unit'
     run.run('sram_unit_build',[run.tool('iverilog'),'-g2012','-s','tb_sky130_dp_ram','-o',str(executable),
                               'rtl/sky130_dp_ram.sv',str(model),'tb/tb_sky130_dp_ram.sv'])
@@ -69,11 +76,23 @@ def run_sram(run):
             +sources+['tb/memory_stream_sva.sv','tb/tb_memory_gemm.sv'],timeout=900)
     for seed in run.args.seeds:
         run.run(f'sram_sva_seed{seed}',[str(obj/'Vtb_memory_gemm'),f'+SEED={seed}'],[r'PASS: Memory GEMM'])
-    script=run.directory/'sram_synth.ys' 
+    macros,cell_count=synthesize_sram(run,sources[:-1])
+    run.report['sram']={'macro':NAME,'instances':macros,'generic_cells_including_macros':cell_count,'benchmarks':benchmarks,
+                        'read_response':'following rising edge after request; held until next response',
+                        'logic_mapping':'generic techmap without ABC; hard-macro binding only',
+                        'scope':'upstream functional model and hard-macro synthesis binding; no macro layout signoff'}
+    (run.directory/'sram_metrics.json').write_text(json.dumps(run.report['sram'],indent=2)+'\n')
+    run.save()
+
+
+def synthesize_sram(run,sources):
+    # Macro binding is a structural check; no ABC library optimization or PPA
+    # claim is needed. Keep this identical under native and portable Yosys.
+    script=run.directory/'sram_synth.ys'
     script.write_text(f'read_liberty -lib third_party/sky130_sram/{NAME}_TT_1p8V_25C.lib\n'
-                      'read_verilog -sv '+ ' '.join(sources[:-1])+ '\n'
+                      'read_verilog -sv '+ ' '.join(sources)+ '\n'
                       'hierarchy -check -top axi_gemm -chparam SRAM_IMPL 1\n'
-                      'synth -top axi_gemm -flatten\ncheck\nstat\n'
+                      'synth -top axi_gemm -flatten -noabc\ncheck\nstat\n'
                       f'write_json "{run.directory/"sram_netlist.json"}"\n'
                       f'write_verilog -noattr "{run.directory/"sram_netlist.v"}"\n')
     run.run('sram_synthesis',[run.tool('yosys'),'-Q','-s',str(script)],[r'Found and reported 0 problems',r'End of script'])
@@ -81,11 +100,7 @@ def run_sram(run):
     macros={name:cell['type'] for name,cell in cells.items() if cell['type']==NAME}
     if len(macros)!=3 or any(cell['type'].startswith('$mem') for cell in cells.values()):
         raise RuntimeError('Expected exactly three hard SRAM instances without inferred fallback RAM')
-    run.report['sram']={'macro':NAME,'instances':macros,'generic_cells_including_macros':len(cells),'benchmarks':benchmarks,
-                        'read_response':'following rising edge after request; held until next response',
-                        'scope':'upstream functional model and hard-macro synthesis binding; no macro layout signoff'}
-    (run.directory/'sram_metrics.json').write_text(json.dumps(run.report['sram'],indent=2)+'\n')
-    run.save()
+    return macros,len(cells)
 
 
 if __name__=='__main__':

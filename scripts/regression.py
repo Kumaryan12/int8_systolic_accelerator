@@ -32,7 +32,7 @@ class Regression:
                        "random_cases": args.random_cases, "sizes": getattr(args, "sizes", [4]),
                        "tools": {}, "steps": [], "status": "RUNNING"}
         sources = [ROOT / "Makefile"]
-        for folder in ("rtl", "tb", "scripts", "synth", "timing", "constraints", "lib", "physical", "examples"):
+        for folder in ("rtl", "tb", "scripts", "synth", "timing", "constraints", "lib", "physical", "examples", "ci"):
             sources.extend(path for path in (ROOT / folder).rglob("*")
                            if path.is_file() and "__pycache__" not in path.parts)
         self.report["source_sha256"] = {
@@ -349,8 +349,17 @@ class Regression:
         }
         self.save()
 
+    def require_synthesis_tool(self):
+        self.tool("yosys")
+        version=self.report["tools"]["yosys"]["version"]
+        match=re.search(r"Yosys (\d+)\.(\d+)",version)
+        if not match or tuple(map(int,match.groups()))<(0,68):
+            raise RuntimeError("Yosys 0.68+ required for this RTL; use native 0.70 or pinned ci/requirements-yosys.txt with YOSYS=yowasp-yosys")
+
     def execute(self):
         suite = self.args.suite
+        if suite in ("verify","sram","sram-synth","synth","ppa","gate","architecture","memory-synth"):
+            self.require_synthesis_tool()
         if suite in ("python", "verify"):
             self.python()
         for kind in ("sim", "advanced", "coverage"):
@@ -363,9 +372,9 @@ class Regression:
             self.sva()
         if suite in ("gemm", "verify"):
             self.gemm()
-        if suite in ("sram", "verify"):
+        if suite in ("sram", "sram-synth", "verify"):
             from sram import run_sram
-            run_sram(self)
+            run_sram(self,synthesis_only=(suite=="sram-synth"))
         if suite in ("axi", "verify"):
             self.axi()
         if suite in ("memory", "verify"):
@@ -393,6 +402,11 @@ class Regression:
         if suite=="model":
             from digit_model import run_model
             run_model(self)
+        if suite=="rcx":
+            if not self.args.physical_run:
+                raise RuntimeError("Set --physical-run to a successful physical run directory")
+            from rcx import run_rcx
+            run_rcx(self)
         if suite=="pvt":
             if not self.args.physical_run:
                 raise RuntimeError("Set --physical-run to a successful physical run directory")
@@ -407,8 +421,9 @@ class Regression:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "memory", "memory-sva", "memory-bench", "memory-synth", "inference", "synth", "ppa", "gate", "architecture", "physical", "postroute", "model", "axi", "pvt", "sram"], default="verify")
+    parser.add_argument("--suite", choices=["verify", "python", "sim", "advanced", "coverage", "uvm", "sva", "gemm", "memory", "memory-sva", "memory-bench", "memory-synth", "inference", "synth", "ppa", "gate", "architecture", "physical", "postroute", "model", "axi", "pvt", "sram", "sram-synth", "rcx"], default="verify")
     parser.add_argument("--physical-run")
+    parser.add_argument("--rcx-run")
     parser.add_argument("--physical-design", choices=["memory_gemm","axi_gemm"], default="memory_gemm")
     parser.add_argument("--require-timing-closure", action="store_true")
     parser.add_argument("--pvt-periods", type=float, nargs="+", default=[10.0,20.0])

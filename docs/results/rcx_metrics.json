@@ -1,0 +1,58 @@
+{
+  "physical_run": "build/run_20261110T105454Z__dbcos4i",
+  "design": "axi_gemm",
+  "image": "openroad/orfs@sha256:76fdfc62aa2ad5fdc373c38645d02be00ad346e7a1a65dff826a7a9f75eadf7d",
+  "physical_odb_sha256": "f0bf849753fb0ae3ce634cda61137fbfd032ff410c4a476584589d7cb440b472",
+  "rules": {
+    "repository": "https://github.com/fossi-foundation/open-pdks",
+    "revision": "5740c4a81c42f9fe4af5ef2ee258a99151053d28",
+    "source": "sky130/librelane; published SKY130A .calibre OpenRCX rule tables",
+    "downloads": {
+      "min": {
+        "filename": "rules.openrcx.sky130A.min.calibre",
+        "url": "https://raw.githubusercontent.com/fossi-foundation/open-pdks/5740c4a81c42f9fe4af5ef2ee258a99151053d28/sky130/librelane/rules.openrcx.sky130A.min.calibre",
+        "sha256": "b11177d33b33878c080a0c1db6c6dd022e89c64ebf21cc87e0ac4d9c68378a63"
+      },
+      "nom": {
+        "filename": "rules.openrcx.sky130A.nom.calibre",
+        "url": "https://raw.githubusercontent.com/fossi-foundation/open-pdks/5740c4a81c42f9fe4af5ef2ee258a99151053d28/sky130/librelane/rules.openrcx.sky130A.nom.calibre",
+        "sha256": "0b0678968a3d8665ee1ac882df2b0eb31e3896ac05130b9de6bd67ef2027c757"
+      },
+      "max": {
+        "filename": "rules.openrcx.sky130A.max.calibre",
+        "url": "https://raw.githubusercontent.com/fossi-foundation/open-pdks/5740c4a81c42f9fe4af5ef2ee258a99151053d28/sky130/librelane/rules.openrcx.sky130A.max.calibre",
+        "sha256": "008ce6e4867fa9a68b16dbc50df596967d503f6c29b317354689f61f4c249220"
+      }
+    }
+  },
+  "corners": {
+    "min": {
+      "design": "axi_gemm",
+      "nets": 16503,
+      "resistance_segments": 63584,
+      "sum_dnet_capacitance_pF": 73.08119775810009,
+      "sum_segment_resistance_ohm": 1232367.7215231392,
+      "file": "min.spef",
+      "sha256": "7b168a81626c919e8def18e45cead95131e28d111e8627e1d0956a44abe2bc06"
+    },
+    "nom": {
+      "design": "axi_gemm",
+      "nets": 16503,
+      "resistance_segments": 65336,
+      "sum_dnet_capacitance_pF": 81.2613054302,
+      "sum_segment_resistance_ohm": 1388502.703587147,
+      "file": "nom.spef",
+      "sha256": "6df799cf755a0f973e2873312577b5484579d54eede11881b69f5df159e7611e"
+    },
+    "max": {
+      "design": "axi_gemm",
+      "nets": 16503,
+      "resistance_segments": 68188,
+      "sum_dnet_capacitance_pF": 89.30384498490022,
+      "sum_segment_resistance_ohm": 1610052.5995911262,
+      "file": "max.spef",
+      "sha256": "d370ff37f8248e8945c8d8cd4b144814176580a8cb2bbd9680ada6ddd5bd9014"
+    }
+  },
+  "scope": "independent published min/nom/max rule extraction on identical routed geometry; not foundry signoff"
+}

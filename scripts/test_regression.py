@@ -27,6 +27,16 @@ class RegressionGateTests(unittest.TestCase):
         self.addCleanup(self.silence.close)
         self.regression = Regression(Namespace(suite="sim", seeds=[42], random_cases=1))
 
+    def test_synthesis_preflight_rejects_old_or_unknown_tool_versions(self):
+        with patch.object(self.regression,"tool"):
+            for version,accepted in (("Yosys 0.33",False),("unrecognized",False),
+                                     ("Yosys 0.68+42",True),("Yosys 0.70 (Release)",True)):
+                self.regression.report["tools"]["yosys"]={"version":version}
+                if accepted:self.regression.require_synthesis_tool()
+                else:
+                    with self.assertRaisesRegex(RuntimeError,"Yosys 0.68"):
+                        self.regression.require_synthesis_tool()
+
     def command(self, code):
         return [sys.executable, "-c", code]
 

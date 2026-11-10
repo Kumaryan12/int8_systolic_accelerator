@@ -24,7 +24,7 @@ jobs:
       - run: make physical PHYSICAL_DESIGN="$PHYSICAL_DESIGN"
         env:
           PHYSICAL_DESIGN: ${{ inputs.design }}
-      - name: Gate three cell PVT corners at 50 MHz
+      - name: Extract RC corners and gate all nine combinations at 50 MHz
         run: |
           python3 - <<'PY'
           import json
@@ -35,9 +35,16 @@ jobs:
                         and r.get('status') == 'PASS']
           if len(candidates) != 1:
               raise SystemExit('Expected exactly one successful physical run')
+          subprocess.run(['python3', 'scripts/regression.py', '--suite', 'rcx',
+                          '--physical-run', str(candidates[0])], check=True)
+          rc_runs = [p.parent for p in Path('build').glob('run_*/summary.json')
+                     if (r := json.loads(p.read_text())).get('suite') == 'rcx'
+                     and r.get('status') == 'PASS']
+          if len(rc_runs) != 1:
+              raise SystemExit('Expected exactly one successful RC extraction')
           subprocess.run(['python3', 'scripts/regression.py', '--suite', 'pvt',
                           '--physical-run', str(candidates[0]), '--seeds', '2026', '20261110', '42',
-                          '--pvt-periods', '20',
+                          '--rcx-run', str(rc_runs[0]), '--pvt-periods', '20',
                           '--require-timing-closure'], check=True)
           PY
       - uses: actions/upload-artifact@v4
@@ -48,6 +55,8 @@ jobs:
             build/run_*/summary.json
             build/run_*/physical_metrics.json
             build/run_*/pvt_metrics.json
+            build/run_*/rcx_metrics.json
+            build/run_*/*.spef
             build/run_*/*/*.rpt
             build/run_*/*.log
             build/run_*/logs/

@@ -14,7 +14,7 @@ make verify
 ```
 
 `make verify` rebuilds every verification executable and retains a fresh log
-folder and JSON summary. Requirements: Python 3.10+, Icarus/vvp, Verilator
+folder and JSON summary. Requirements: Python 3.10+, Yosys 0.68+, Icarus/vvp, Verilator
 5.054, a C++ compiler, and make. No third-party Python packages are needed.
 See [toolchain setup](docs/toolchain.md) for versions and individual commands.
 
@@ -29,7 +29,7 @@ See [toolchain setup](docs/toolchain.md) for versions and individual commands.
 | Hardware tiled GEMM | Seven shapes, three seeds, 777 completed GEMMs; padding and cross-tile accumulation |
 | Memory-backed GEMM | Two tagged job slots, three synchronous RAMs, narrow valid/ready streams; 168 checked GEMMs |
 | Optional hard SRAM | Banked OpenRAM backend, latency-aware controller, eight shapes/three seeds and exact macro binding ([contract](docs/sram_backend.md)) |
-| AXI4-Lite peripheral | Independent channels, byte strobes, tagged CSRs, IRQs and qualified reset; routed gate tests and three cell PVTs pass at 50 MHz ([results](docs/results/checkpoint_13.md)) |
+| AXI4-Lite peripheral | Independent channels, byte strobes, tagged CSRs, IRQs and qualified reset; routed gate tests and nine cell-PVT/RC combinations pass at 50 MHz ([results](docs/results/checkpoint_15.md)) |
 | Memory pipeline performance | Eight-job overlapped schedules take 23–35% fewer cycles than the same interface driven serially; [measured scope](docs/results/checkpoint_8.md) |
 | Integer postprocessing | 1,900 Python/RTL comparisons of rounding, saturation, zero points and ReLU |
 | RTL layer demo | 21 exact integer outputs; 48 clocks; max float-reference error 0.02152 |
@@ -73,10 +73,11 @@ runs the functional regression on Ubuntu and archives evidence.
 ## Implementation results and scope
 
 The **AXI peripheral** has a routed SKY130HD implementation with 21,653 standard
-cells and 211,912 µm² cell area. At 50 MHz, TT/SS/FF cell corners pass setup,
-hold, qualified-reset recovery/removal and synchronizer setup using the same
-extracted RC. Three seeds of routed gate-level host tests pass; router DRC
-errors are zero. See [AXI physical results](docs/results/checkpoint_13.md).
+cells and 211,912 µm² cell area. At 50 MHz, all nine TT/SS/FF × RC-min/nom/max combinations pass setup,
+hold, qualified-reset recovery/removal and synchronizer setup. The worst setup
+slack is +0.853111 ns; the worst hold slack is +0.092626 ns. Three seeds of routed gate-level host tests pass; router DRC
+errors are zero. See [AXI physical results](docs/results/checkpoint_13.md) and the
+[independent RC sweep](docs/results/checkpoint_15.md).
 
 The earlier **streaming memory** 3×5 by 5×7 top has a separate routed result:
 20,630 standard cells and 203,764 µm² of standard-cell area. Extracted timing
@@ -96,7 +97,7 @@ sweep passes setup/hold at 50 MHz for TT/SS/FF using the same extracted RC;
 The routed implementations use standard-cell RAM. An optional hard-SRAM
 backend is functionally verified and synthesis-bound; its macro layout remains
 to be integrated. The AXI4-Lite peripheral is verified
-in RTL and routed gates. Hard SRAM/BRAM, processor/DMA integration, RC corners,
+in RTL and routed gates. Hard SRAM/BRAM, processor/DMA integration,
 reset pulse/MTBF characterization, foundry DRC/LVS and real-device measurements
 remain open. Zero router errors
 and typical-corner timing are not production signoff. Historical base-tile

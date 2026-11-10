@@ -1,0 +1,22 @@
+{
+  "repository": "https://github.com/fossi-foundation/open-pdks",
+  "revision": "5740c4a81c42f9fe4af5ef2ee258a99151053d28",
+  "source": "sky130/librelane; published SKY130A .calibre OpenRCX rule tables",
+  "downloads": {
+    "min": {
+      "filename": "rules.openrcx.sky130A.min.calibre",
+      "url": "https://raw.githubusercontent.com/fossi-foundation/open-pdks/5740c4a81c42f9fe4af5ef2ee258a99151053d28/sky130/librelane/rules.openrcx.sky130A.min.calibre",
+      "sha256": "b11177d33b33878c080a0c1db6c6dd022e89c64ebf21cc87e0ac4d9c68378a63"
+    },
+    "nom": {
+      "filename": "rules.openrcx.sky130A.nom.calibre",
+      "url": "https://raw.githubusercontent.com/fossi-foundation/open-pdks/5740c4a81c42f9fe4af5ef2ee258a99151053d28/sky130/librelane/rules.openrcx.sky130A.nom.calibre",
+      "sha256": "0b0678968a3d8665ee1ac882df2b0eb31e3896ac05130b9de6bd67ef2027c757"
+    },
+    "max": {
+      "filename": "rules.openrcx.sky130A.max.calibre",
+      "url": "https://raw.githubusercontent.com/fossi-foundation/open-pdks/5740c4a81c42f9fe4af5ef2ee258a99151053d28/sky130/librelane/rules.openrcx.sky130A.max.calibre",
+      "sha256": "008ce6e4867fa9a68b16dbc50df596967d503f6c29b317354689f61f4c249220"
+    }
+  }
+}

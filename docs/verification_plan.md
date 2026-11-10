@@ -73,3 +73,11 @@ into an ignored cache. RC and raw-reset exceptions remain unchanged.
 eight stream/AXI shapes at three seeds, temporal stream properties, synthesis
 macro-count/fallback gates and matched backend cycle benchmarks. These checks
 are included in `make verify`. SRAM views are pinned and vendored for offline CI.
+
+`make rcx PHYSICAL_RUN=...` independently extracts RC-min/nom/max SPEFs from the
+validated routed ODB using pinned public rule tables. Pass that successful
+run via `make pvt PHYSICAL_RUN=... PVT_ARGS="--rcx-run build/run_... --pvt-periods 20 --require-timing-closure"`
+to strictly gate all nine cell-PVT/RC combinations, including qualified reset
+checks for AXI. The original fixed-SPEF path remains supported when this option
+is absent. Unit gates reject malformed/nonfinite SPEFs, wrong units, incomplete
+corner sets, layout/image mismatches and altered extraction artifacts.

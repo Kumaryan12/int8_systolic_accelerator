@@ -1,0 +1,217 @@
+{
+  "physical_run": "build/run_20261110T105454Z__dbcos4i",
+  "design": "axi_gemm",
+  "corners": [
+    {
+      "corner": "tt_025C_1v80",
+      "rc_corner": "min",
+      "period_ns": 20.0,
+      "setup_slack_ns": 10.680676,
+      "hold_slack_ns": 0.152981,
+      "timing_closed": true,
+      "recovery_slack_ns": 15.656861,
+      "removal_slack_ns": 0.483571,
+      "reset_sync_setup_slack_ns": 19.338942,
+      "qualified_reset_checks_reported": true,
+      "reset_stages": "{{reset_release.release_pipe\\[0\\]$_DFF_PN0_} {72680 19040}} {{reset_release.release_pipe\\[1\\]$_DFF_PN0_} {79580 21760}}",
+      "reset_stage_manhattan_um": 9.62
+    },
+    {
+      "corner": "tt_025C_1v80",
+      "rc_corner": "nom",
+      "period_ns": 20.0,
+      "setup_slack_ns": 10.569346,
+      "hold_slack_ns": 0.141648,
+      "timing_closed": true,
+      "recovery_slack_ns": 15.531054,
+      "removal_slack_ns": 0.504071,
+      "reset_sync_setup_slack_ns": 19.338444,
+      "qualified_reset_checks_reported": true,
+      "reset_stages": "{{reset_release.release_pipe\\[0\\]$_DFF_PN0_} {72680 19040}} {{reset_release.release_pipe\\[1\\]$_DFF_PN0_} {79580 21760}}",
+      "reset_stage_manhattan_um": 9.62
+    },
+    {
+      "corner": "tt_025C_1v80",
+      "rc_corner": "max",
+      "period_ns": 20.0,
+      "setup_slack_ns": 10.460446,
+      "hold_slack_ns": 0.129785,
+      "timing_closed": true,
+      "recovery_slack_ns": 15.390068,
+      "removal_slack_ns": 0.532356,
+      "reset_sync_setup_slack_ns": 19.337683,
+      "qualified_reset_checks_reported": true,
+      "reset_stages": "{{reset_release.release_pipe\\[0\\]$_DFF_PN0_} {72680 19040}} {{reset_release.release_pipe\\[1\\]$_DFF_PN0_} {79580 21760}}",
+      "reset_stage_manhattan_um": 9.62
+    },
+    {
+      "corner": "ss_100C_1v60",
+      "rc_corner": "min",
+      "period_ns": 20.0,
+      "setup_slack_ns": 1.280345,
+      "hold_slack_ns": 0.443584,
+      "timing_closed": true,
+      "recovery_slack_ns": 12.474114,
+      "removal_slack_ns": 0.883405,
+      "reset_sync_setup_slack_ns": 18.799646,
+      "qualified_reset_checks_reported": true,
+      "reset_stages": "{{reset_release.release_pipe\\[0\\]$_DFF_PN0_} {72680 19040}} {{reset_release.release_pipe\\[1\\]$_DFF_PN0_} {79580 21760}}",
+      "reset_stage_manhattan_um": 9.62
+    },
+    {
+      "corner": "ss_100C_1v60",
+      "rc_corner": "nom",
+      "period_ns": 20.0,
+      "setup_slack_ns": 1.065247,
+      "hold_slack_ns": 0.430662,
+      "timing_closed": true,
+      "recovery_slack_ns": 12.245263,
+      "removal_slack_ns": 0.919264,
+      "reset_sync_setup_slack_ns": 18.798721,
+      "qualified_reset_checks_reported": true,
+      "reset_stages": "{{reset_release.release_pipe\\[0\\]$_DFF_PN0_} {72680 19040}} {{reset_release.release_pipe\\[1\\]$_DFF_PN0_} {79580 21760}}",
+      "reset_stage_manhattan_um": 9.62
+    },
+    {
+      "corner": "ss_100C_1v60",
+      "rc_corner": "max",
+      "period_ns": 20.0,
+      "setup_slack_ns": 0.853111,
+      "hold_slack_ns": 0.417382,
+      "timing_closed": true,
+      "recovery_slack_ns": 11.99046,
+      "removal_slack_ns": 0.96911,
+      "reset_sync_setup_slack_ns": 18.797691,
+      "qualified_reset_checks_reported": true,
+      "reset_stages": "{{reset_release.release_pipe\\[0\\]$_DFF_PN0_} {72680 19040}} {{reset_release.release_pipe\\[1\\]$_DFF_PN0_} {79580 21760}}",
+      "reset_stage_manhattan_um": 9.62
+    },
+    {
+      "corner": "ff_n40C_1v95",
+      "rc_corner": "min",
+      "period_ns": 20.0,
+      "setup_slack_ns": 14.178344,
+      "hold_slack_ns": 0.10922,
+      "timing_closed": true,
+      "recovery_slack_ns": 17.093119,
+      "removal_slack_ns": 0.308783,
+      "reset_sync_setup_slack_ns": 19.508301,
+      "qualified_reset_checks_reported": true,
+      "reset_stages": "{{reset_release.release_pipe\\[0\\]$_DFF_PN0_} {72680 19040}} {{reset_release.release_pipe\\[1\\]$_DFF_PN0_} {79580 21760}}",
+      "reset_stage_manhattan_um": 9.62
+    },
+    {
+      "corner": "ff_n40C_1v95",
+      "rc_corner": "nom",
+      "period_ns": 20.0,
+      "setup_slack_ns": 14.107427,
+      "hold_slack_ns": 0.101337,
+      "timing_closed": true,
+      "recovery_slack_ns": 17.014736,
+      "removal_slack_ns": 0.323027,
+      "reset_sync_setup_slack_ns": 19.507893,
+      "qualified_reset_checks_reported": true,
+      "reset_stages": "{{reset_release.release_pipe\\[0\\]$_DFF_PN0_} {72680 19040}} {{reset_release.release_pipe\\[1\\]$_DFF_PN0_} {79580 21760}}",
+      "reset_stage_manhattan_um": 9.62
+    },
+    {
+      "corner": "ff_n40C_1v95",
+      "rc_corner": "max",
+      "period_ns": 20.0,
+      "setup_slack_ns": 14.037412,
+      "hold_slack_ns": 0.092626,
+      "timing_closed": true,
+      "recovery_slack_ns": 16.926905,
+      "removal_slack_ns": 0.341796,
+      "reset_sync_setup_slack_ns": 19.507452,
+      "qualified_reset_checks_reported": true,
+      "reset_stages": "{{reset_release.release_pipe\\[0\\]$_DFF_PN0_} {72680 19040}} {{reset_release.release_pipe\\[1\\]$_DFF_PN0_} {79580 21760}}",
+      "reset_stage_manhattan_um": 9.62
+    }
+  ],
+  "all_timing_closed": true,
+  "scope": "three cell PVTs; independent min/nom/max RC extractions; propagated clocks; internal qualified-reset recovery/removal timed; only raw reset into synchronizer excepted; public-model RC-corner analysis; no foundry signoff",
+  "libraries": {
+    "repository": "https://github.com/efabless/skywater-pdk-libs-sky130_fd_sc_hd",
+    "revision": "5a42fd01a0eeb2338340438443c7062e198d97a4",
+    "license": "Apache-2.0; see lib/LICENSE.sky130",
+    "tt_025C_1v80": {
+      "source": "pinned ORFS image /OpenROAD-flow-scripts/flow/platforms/sky130hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib",
+      "sha256": "ec0e1067a35c8bf20b11e58d1e8ac53326067e4dac84a125cc1b917a3518d0d9"
+    },
+    "downloads": {
+      "ss_100C_1v60": {
+        "url": "https://raw.githubusercontent.com/efabless/skywater-pdk-libs-sky130_fd_sc_hd/5a42fd01a0eeb2338340438443c7062e198d97a4/timing/sky130_fd_sc_hd__ss_100C_1v60.lib",
+        "sha256": "9b24f0db3967ac67b4cae1f74bb480fd47922d18d0ed577e3c121739b412c361"
+      },
+      "ff_n40C_1v95": {
+        "url": "https://raw.githubusercontent.com/efabless/skywater-pdk-libs-sky130_fd_sc_hd/5a42fd01a0eeb2338340438443c7062e198d97a4/timing/sky130_fd_sc_hd__ff_n40C_1v95.lib",
+        "sha256": "fb61d91c55a7f85b1989e8149d040b13ba5e7f5478f5bf0c3c16c5da30720139"
+      }
+    }
+  },
+  "image": "openroad/orfs@sha256:76fdfc62aa2ad5fdc373c38645d02be00ad346e7a1a65dff826a7a9f75eadf7d",
+  "physical_input_sha256": {
+    "6_final.odb": "f0bf849753fb0ae3ce634cda61137fbfd032ff410c4a476584589d7cb440b472",
+    "6_final.spef": "97659baf2afba6e4fe33d8deb70aff4fe558dd25b3200eee056860afb0f85e8a",
+    "6_final.sdc": "6157ce1806ce16c584893b2f84d9167af21f5e347d573d876f31f7efdde585c6"
+  },
+  "rc_extraction": {
+    "physical_run": "build/run_20261110T105454Z__dbcos4i",
+    "design": "axi_gemm",
+    "image": "openroad/orfs@sha256:76fdfc62aa2ad5fdc373c38645d02be00ad346e7a1a65dff826a7a9f75eadf7d",
+    "physical_odb_sha256": "f0bf849753fb0ae3ce634cda61137fbfd032ff410c4a476584589d7cb440b472",
+    "rules": {
+      "repository": "https://github.com/fossi-foundation/open-pdks",
+      "revision": "5740c4a81c42f9fe4af5ef2ee258a99151053d28",
+      "source": "sky130/librelane; published SKY130A .calibre OpenRCX rule tables",
+      "downloads": {
+        "min": {
+          "filename": "rules.openrcx.sky130A.min.calibre",
+          "url": "https://raw.githubusercontent.com/fossi-foundation/open-pdks/5740c4a81c42f9fe4af5ef2ee258a99151053d28/sky130/librelane/rules.openrcx.sky130A.min.calibre",
+          "sha256": "b11177d33b33878c080a0c1db6c6dd022e89c64ebf21cc87e0ac4d9c68378a63"
+        },
+        "nom": {
+          "filename": "rules.openrcx.sky130A.nom.calibre",
+          "url": "https://raw.githubusercontent.com/fossi-foundation/open-pdks/5740c4a81c42f9fe4af5ef2ee258a99151053d28/sky130/librelane/rules.openrcx.sky130A.nom.calibre",
+          "sha256": "0b0678968a3d8665ee1ac882df2b0eb31e3896ac05130b9de6bd67ef2027c757"
+        },
+        "max": {
+          "filename": "rules.openrcx.sky130A.max.calibre",
+          "url": "https://raw.githubusercontent.com/fossi-foundation/open-pdks/5740c4a81c42f9fe4af5ef2ee258a99151053d28/sky130/librelane/rules.openrcx.sky130A.max.calibre",
+          "sha256": "008ce6e4867fa9a68b16dbc50df596967d503f6c29b317354689f61f4c249220"
+        }
+      }
+    },
+    "corners": {
+      "min": {
+        "design": "axi_gemm",
+        "nets": 16503,
+        "resistance_segments": 63584,
+        "sum_dnet_capacitance_pF": 73.08119775810009,
+        "sum_segment_resistance_ohm": 1232367.7215231392,
+        "file": "min.spef",
+        "sha256": "7b168a81626c919e8def18e45cead95131e28d111e8627e1d0956a44abe2bc06"
+      },
+      "nom": {
+        "design": "axi_gemm",
+        "nets": 16503,
+        "resistance_segments": 65336,
+        "sum_dnet_capacitance_pF": 81.2613054302,
+        "sum_segment_resistance_ohm": 1388502.703587147,
+        "file": "nom.spef",
+        "sha256": "6df799cf755a0f973e2873312577b5484579d54eede11881b69f5df159e7611e"
+      },
+      "max": {
+        "design": "axi_gemm",
+        "nets": 16503,
+        "resistance_segments": 68188,
+        "sum_dnet_capacitance_pF": 89.30384498490022,
+        "sum_segment_resistance_ohm": 1610052.5995911262,
+        "file": "max.spef",
+        "sha256": "d370ff37f8248e8945c8d8cd4b144814176580a8cb2bbd9680ada6ddd5bd9014"
+      }
+    },
+    "scope": "independent published min/nom/max rule extraction on identical routed geometry; not foundry signoff"
+  }
+}

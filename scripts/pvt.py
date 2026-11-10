@@ -44,11 +44,11 @@ def checked_library(path,expected):
     return path
 
 
-def fetch_library(cache,corner,metadata):
+def fetch_artifact(cache,filename,metadata):
     cache.mkdir(parents=True,exist_ok=True)
-    path=cache/f"sky130_fd_sc_hd__{corner}.lib"
+    path=cache/filename
     if not path.is_file():
-        with tempfile.NamedTemporaryFile(dir=cache,prefix=f"{corner}_",suffix=".download",delete=False) as temporary_file:
+        with tempfile.NamedTemporaryFile(dir=cache,prefix=f"{path.stem}_",suffix=".download",delete=False) as temporary_file:
             temporary=Path(temporary_file.name)
         try:
             with urllib.request.urlopen(metadata["url"],timeout=60) as response, temporary.open("wb") as output:
@@ -58,6 +58,10 @@ def fetch_library(cache,corner,metadata):
         finally:
             temporary.unlink(missing_ok=True)
     return checked_library(path,metadata["sha256"])
+
+
+def fetch_library(cache,corner,metadata):
+    return fetch_artifact(cache,f"sky130_fd_sc_hd__{corner}.lib",metadata)
 
 
 def validate_source(source,config):
@@ -87,65 +91,72 @@ def run_pvt(run):
     stage=run.directory/"pvt_sources"
     stage.mkdir()
     result=source/f"results/sky130hd/{nickname}/base"
-    for ext in ("odb","spef"):
+    for ext in ("odb",):
         shutil.copy2(result/f"6_final.{ext}",stage/f"design.{ext}")
     shutil.copy2(root/"physical/pvt.tcl",stage/"pvt.tcl")
+    rc_corners={"original":result/"6_final.spef"}
+    rc_report=None
+    if run.args.rcx_run:
+        from rcx import load_rc_corners
+        rc_corners,rc_report=load_rc_corners(Path(run.args.rcx_run).resolve(),result,config)
     docker=run.tool("docker")
     tt=run.directory/"sky130_fd_sc_hd__tt_025C_1v80.lib"
     metrics=[]
     for corner in ("tt_025C_1v80","ss_100C_1v60","ff_n40C_1v95"):
-        for period in run.args.pvt_periods:
-            label=f"{corner}_{period:g}ns"
-            output=run.directory/label
-            output.mkdir()
-            sdc,count=re.subn(r"(-period\s+)[0-9.]+",rf"\g<1>{period}",(result/"6_final.sdc").read_text(),count=1)
-            if count!=1: raise RuntimeError("Cannot identify final clock constraint")
-            (stage/"design.sdc").write_text(sdc)
-            name=f"int8-pvt-{run.directory.name}-{label}".lower().replace("_","-")
-            created=False
-            success=False
-            try:
-                run.run(f"{label}_create",[docker,"create","--name",name,"--platform",config["platform"],"--network","none",
-                    config["image"],"bash","-c","source /OpenROAD-flow-scripts/env.sh && mkdir -p /output && "
-                    "openroad -no_init -exit /project/pvt.tcl"],timeout=120)
-                created=True
-                if corner=="tt_025C_1v80" and not tt.exists():
-                    run.run("pvt_tt_copy",[docker,"cp",f"{name}:/OpenROAD-flow-scripts/flow/platforms/sky130hd/lib/{tt.name}",str(tt)],timeout=120)
-                    checked_library(tt,manifest[corner]["sha256"])
-                    libraries[corner]=tt
-                    if design=="axi_gemm": run_axi_gate(run,result,tt)
-                shutil.copy2(libraries[corner],stage/"corner.lib")
-                run.run(f"{label}_copy",[docker,"cp",str(stage),f"{name}:/project"],timeout=120)
-                log=run.run(f"{label}_analysis",[docker,"start","--attach",name],[r"PASS: PVT analysis completed"],timeout=300)
-                success=True
-            finally:
-                if created:
-                    if not success: subprocess.run([docker,"stop","--time","5",name],capture_output=True,timeout=30)
-                    collected=subprocess.run([docker,"cp",f"{name}:/output/.",str(output)],capture_output=True,text=True,timeout=120)
-                    (output/"collect.log").write_text(collected.stdout+collected.stderr)
-                subprocess.run([docker,"rm","-f",name],capture_output=True,timeout=30)
-            if collected.returncode: raise RuntimeError("Cannot collect PVT outputs")
-            row={"corner":corner,"period_ns":period,**parse_timing(log)}
-            if design=="axi_gemm":
-                for check in ("recovery","removal"):
-                    if f"library {check} time" not in (output/f"{check}.rpt").read_text():
-                        raise RuntimeError(f"Qualified reset has no reported {check} paths")
-                for check in ("recovery","removal","reset_sync_setup"):
-                    row[f"{check}_slack_ns"]=parse_path_slack((output/f"{check}.rpt").read_text())
-                    row["timing_closed"] &= row[f"{check}_slack_ns"]>=0
-                row["qualified_reset_checks_reported"]=True
-                stages=re.search(r"^RESET_SYNC_STAGES (.+)$",log,re.MULTILINE)
-                if not stages or stages[1].count("release_pipe")!=2:
-                    raise RuntimeError("Expected two preserved reset synchronizer stages")
-                row["reset_stages"]=stages[1]
-                spacing=re.search(r"^RESET_SYNC_SPACING_UM (\S+)$",log,re.MULTILINE)
-                if not spacing or not math.isfinite(float(spacing[1])):
-                    raise RuntimeError("Missing reset synchronizer physical spacing")
-                row["reset_stage_manhattan_um"]=float(spacing[1])
-                sync_report=(output/"reset_sync_setup.rpt").read_text()
-                if "Startpoint: reset_release.release_pipe[0]" not in sync_report or "Endpoint: reset_release.release_pipe[1]" not in sync_report:
-                    raise RuntimeError("Reset synchronizer interstage timing path missing")
-            metrics.append(row)
+        for rc_corner,spef in rc_corners.items():
+            for period in run.args.pvt_periods:
+                label=f"{corner}_{period:g}ns" if rc_report is None else f"{corner}_{rc_corner}_{period:g}ns"
+                shutil.copy2(spef,stage/"design.spef")
+                output=run.directory/label
+                output.mkdir()
+                sdc,count=re.subn(r"(-period\s+)[0-9.]+",rf"\g<1>{period}",(result/"6_final.sdc").read_text(),count=1)
+                if count!=1: raise RuntimeError("Cannot identify final clock constraint")
+                (stage/"design.sdc").write_text(sdc)
+                name=f"int8-pvt-{run.directory.name}-{label}".lower().replace("_","-")
+                created=False
+                success=False
+                try:
+                    run.run(f"{label}_create",[docker,"create","--name",name,"--platform",config["platform"],"--network","none",
+                        config["image"],"bash","-c","source /OpenROAD-flow-scripts/env.sh && mkdir -p /output && "
+                        "openroad -no_init -exit /project/pvt.tcl"],timeout=120)
+                    created=True
+                    if corner=="tt_025C_1v80" and not tt.exists():
+                        run.run("pvt_tt_copy",[docker,"cp",f"{name}:/OpenROAD-flow-scripts/flow/platforms/sky130hd/lib/{tt.name}",str(tt)],timeout=120)
+                        checked_library(tt,manifest[corner]["sha256"])
+                        libraries[corner]=tt
+                        if design=="axi_gemm": run_axi_gate(run,result,tt)
+                    shutil.copy2(libraries[corner],stage/"corner.lib")
+                    run.run(f"{label}_copy",[docker,"cp",str(stage),f"{name}:/project"],timeout=120)
+                    log=run.run(f"{label}_analysis",[docker,"start","--attach",name],[r"PASS: PVT analysis completed"],timeout=300)
+                    success=True
+                finally:
+                    if created:
+                        if not success: subprocess.run([docker,"stop","--time","5",name],capture_output=True,timeout=30)
+                        collected=subprocess.run([docker,"cp",f"{name}:/output/.",str(output)],capture_output=True,text=True,timeout=120)
+                        (output/"collect.log").write_text(collected.stdout+collected.stderr)
+                    subprocess.run([docker,"rm","-f",name],capture_output=True,timeout=30)
+                if collected.returncode: raise RuntimeError("Cannot collect PVT outputs")
+                row={"corner":corner,"rc_corner":rc_corner,"period_ns":period,**parse_timing(log)}
+                if design=="axi_gemm":
+                    for check in ("recovery","removal"):
+                        if f"library {check} time" not in (output/f"{check}.rpt").read_text():
+                            raise RuntimeError(f"Qualified reset has no reported {check} paths")
+                    for check in ("recovery","removal","reset_sync_setup"):
+                        row[f"{check}_slack_ns"]=parse_path_slack((output/f"{check}.rpt").read_text())
+                        row["timing_closed"] &= row[f"{check}_slack_ns"]>=0
+                    row["qualified_reset_checks_reported"]=True
+                    stages=re.search(r"^RESET_SYNC_STAGES (.+)$",log,re.MULTILINE)
+                    if not stages or stages[1].count("release_pipe")!=2:
+                        raise RuntimeError("Expected two preserved reset synchronizer stages")
+                    row["reset_stages"]=stages[1]
+                    spacing=re.search(r"^RESET_SYNC_SPACING_UM (\S+)$",log,re.MULTILINE)
+                    if not spacing or not math.isfinite(float(spacing[1])):
+                        raise RuntimeError("Missing reset synchronizer physical spacing")
+                    row["reset_stage_manhattan_um"]=float(spacing[1])
+                    sync_report=(output/"reset_sync_setup.rpt").read_text()
+                    if "Startpoint: reset_release.release_pipe[0]" not in sync_report or "Endpoint: reset_release.release_pipe[1]" not in sync_report:
+                        raise RuntimeError("Reset synchronizer interstage timing path missing")
+                metrics.append(row)
     report={"physical_run":str(source),"design":design,"corners":metrics,
             "all_timing_closed":all(row["timing_closed"] for row in metrics),
             "scope":"three cell PVT corners; same routed ODB and extracted RC; propagated clocks; raw reset excepted; no RC-corner/foundry signoff",
@@ -153,6 +164,9 @@ def run_pvt(run):
             "physical_input_sha256":{f"6_final.{ext}":hashlib.sha256((result/f"6_final.{ext}").read_bytes()).hexdigest() for ext in ("odb","spef","sdc")}}
     if design=="axi_gemm":
         report["scope"]="three cell PVTs; same extracted RC; propagated clocks; internal qualified-reset recovery/removal timed; only raw reset into synchronizer excepted; no RC-corner/foundry signoff"
+    if rc_report is not None:
+        report["rc_extraction"]=rc_report
+        report["scope"]=report["scope"].replace("same extracted RC","independent min/nom/max RC extractions").replace("same routed ODB and extracted RC","same routed ODB, independent min/nom/max RC extractions").replace("no RC-corner/foundry signoff","public-model RC-corner analysis; no foundry signoff")
     run.report["pvt"]=report
     (run.directory/"pvt_metrics.json").write_text(json.dumps(report,indent=2)+"\n")
     run.save()

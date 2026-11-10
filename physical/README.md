@@ -106,3 +106,20 @@ path must be reported. There is no internal-reset false path; only raw external
 not used to infer a metastability MTBF. The manual physical CI workflow accepts
 either top and defaults to AXI. `make postroute` power/rendering remains specific
 to the legacy stream top; its power results cannot be transferred to AXI.
+
+## Independent RC extraction
+
+`make rcx PHYSICAL_RUN=...` reuses the unchanged, checksummed routed ODB and
+runs a fresh OpenROAD process for each published SKY130A min/nom/max rule table.
+The rule revision/URLs/hashes are pinned in `rcx_rules.json`; downloaded files
+remain in the ignored cache. Three distinct electrical networks, positive
+network values, units, layout provenance and SPEF hashes are recorded.
+
+Supply the successful extraction directory through `PVT_ARGS="--rcx-run ...
+--pvt-periods 20 --require-timing-closure"` to analyze all nine cell-PVT/RC
+combinations. Altered artifacts, incomplete corner sets and layout/image
+mismatches are rejected. The manual physical workflow now extracts RC corners
+and gates the complete nine-combination sweep. SPEFs and reports are archived.
+See [checkpoint 15](../docs/results/checkpoint_15.md) for actual results.
+This is a public-model interconnect-corner analysis, not foundry signoff or
+an SRAM-macro layout result.

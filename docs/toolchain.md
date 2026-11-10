@@ -42,6 +42,7 @@ make physical
 make physical PHYSICAL_DESIGN=axi_gemm
 make axi
 make sram
+make rcx PHYSICAL_RUN="build/run_<successful-physical-run>"
 make pvt PHYSICAL_RUN="build/run_<successful-physical-run>" PVT_ARGS="--pvt-periods 20 --require-timing-closure"
 make postroute PHYSICAL_RUN="build/run_<successful-physical-run>"
 make verify SEEDS="2026 20261110 42" RANDOM_CASES=200 JOBS=2
@@ -113,3 +114,17 @@ OpenRAM Verilog/TT Liberty/LEF views and their license are vendored under
 `third_party/sky130_sram`; the runner verifies hashes and generates an isolated
 simulation copy with compatible declaration ordering. No SRAM GDS or full PDK
 is downloaded by `make verify`.
+
+CI uses portable Yosys 0.70 from the pinned `ci/requirements-yosys.txt` packages
+and sets `YOSYS=yowasp-yosys`. Ubuntu 24.04's packaged Yosys 0.33 cannot parse
+existing SystemVerilog casts. The regression rejects tool versions below 0.68
+before expensive simulation builds. Native Yosys 0.70 remains the local default.
+To reproduce CI synthesis, install those packages in a virtual environment and
+run `YOSYS=/path/to/venv/bin/yowasp-yosys make verify`. This adds only the synthesis
+tool/runtime packages, rather than an entire CAD suite. The physical flow keeps
+using its separately pinned container toolchain.
+
+`make sram-synth` runs only the structural macro-binding check. It stops after
+generic techmap (without ABC), because the gate checks macro retention and
+absence of inferred RAM, not logic-library optimization or PPA. Physical
+standard-cell mapping remains in the pinned native OpenROAD flow.

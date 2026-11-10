@@ -2,7 +2,7 @@
 
 The prototype now includes memory-backed GEMM, an AXI4-Lite peripheral, a trained
 classifier and routed SKY130 implementations. AXI reset recovery/removal and
-three cell PVT corners are timed; the earlier stream top has workload power. A single `make verify` rebuilds
+nine cell-PVT/RC combinations are timed; the earlier stream top has workload power. A single `make verify` rebuilds
 and checks Python references, RTL, UVM, temporal assertions, coverage, tiled
 matrices, and the small quantized layer example.
 
@@ -24,6 +24,7 @@ matrices, and the small quantized layer example.
 | 12 | Extracted TT/SS/FF timing sweep and strict timing gates | [Results](results/checkpoint_12.md) |
 | 13 | Routed AXI, actual gate host tests and qualified-reset timing at three cell PVTs | [Results](results/checkpoint_13.md) |
 | 14 | Banked OpenRAM backend, latency-aware controller, macro tests and synthesis binding | [Results](results/checkpoint_14.md) |
+| 15 | Independent min/nom/max extraction and strict nine-combination timing/reset gates | [Results](results/checkpoint_15.md) |
 
 The project is stored in the private GitHub repository
 [Kumaryan12/int8_systolic_accelerator](https://github.com/Kumaryan12/int8_systolic_accelerator).
@@ -35,7 +36,7 @@ by Git; curated checkpoint summaries are committed.
 
 - AXI peripheral: 84 GEMMs and 2,904 result checks across seven shapes/three seeds, plus five temporal assertions on the default shape.
 - Hard SRAM: 288 Icarus GEMMs and 10,152 result checks across eight shapes/three seeds, plus stream SVA and boundary/negative tests. Exactly three macros in default synthesis; physical macro integration remains open.
-- 34 Python unit tests, including model training and physical/power report failure gates.
+- 38 Python unit tests, including model training and physical/power report failure gates.
 - Baseline: 105 matrix pairs per seed, across three seeds.
 - Advanced RTL: 211/214/217/229 completions per seed for N=2/3/4/8,
   with 4/7/10/22 reset-abort positions and a recovery after each abort.
@@ -60,12 +61,12 @@ by Git; curated checkpoint summaries are committed.
   Workload-annotated power estimate: 27.69079 mW; 53,754 pins annotated, two not.
 
 - Routed AXI top: 21,653 cells, 211,912 µm² area and zero router DRC errors.
-  Three-seed routed gate tests pass. At 50 MHz, all three tested cell PVTs pass
-  setup/hold, internal reset recovery/removal and synchronizer setup with fixed RC.
+  Three-seed routed gate tests pass. At 50 MHz, all nine cell-PVT/RC combinations pass setup/hold, internal reset
+  recovery/removal and synchronizer setup. Worst setup/hold: +0.853111/+0.092626 ns.
 
 ## Remaining target-specific work
 
-1. **Physical signoff:** extend beyond the tested three cell PVTs to RC corners,
+1. **Physical signoff:** extend the nine tested public-model cell-PVT/RC combinations with
    reset pulse/MTBF characterization, foundry DRC/LVS, power-integrity/thermal checks
    and package/IO integration. AXI internal reset recovery/removal is timed;
    production signoff and silicon measurement are not.

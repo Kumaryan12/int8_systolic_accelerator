@@ -1,4 +1,4 @@
-# Each invocation starts a fresh timer; use the same extracted RC at every PVT.
+# Each invocation starts a fresh timer with the selected cell and RC views.
 read_liberty /project/corner.lib
 read_db /project/design.odb
 read_sdc /project/design.sdc

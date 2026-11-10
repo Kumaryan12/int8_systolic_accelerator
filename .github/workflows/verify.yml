@@ -20,7 +20,13 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install compiler and simulation dependencies
-        run: sudo apt-get update && sudo apt-get install -y yosys iverilog autoconf flex bison g++ make help2man libfl-dev
+        run: sudo apt-get update && sudo apt-get install -y iverilog autoconf flex bison g++ make help2man libfl-dev
+      - name: Install pinned portable Yosys 0.70
+        run: python3 -m pip install -r ci/requirements-yosys.txt
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/YoWASP
+          key: ${{ runner.os }}-${{ runner.arch }}-yowasp-0.70-post1259-wasmtime47-v1
       - uses: actions/cache@v4
         id: verilator
         with:
@@ -36,6 +42,8 @@ jobs:
           make -j2
           make install
       - name: Run verification from source
+        env:
+          YOSYS: yowasp-yosys
         run: |
           export PATH="$HOME/.local/verilator-5.054/bin:$PATH"
           make verify SEEDS="2026 20261110 42"
